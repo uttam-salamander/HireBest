@@ -1,0 +1,295 @@
+{
+  "_meta": {
+    "models": {
+      "candidate": "A student or job seeker taking the assessment, with their basic profile information.",
+      "job": "The job opening the candidate is being assessed for, including title and company.",
+      "chatMessages": "The conversation between the AI and candidate during the assessment, alternating between AI questions and candidate responses.",
+      "assessmentResults": "Completed assessments showing each candidate's overall score, status, and detailed analysis.",
+      "questionAnalysis": "AI's evaluation of each individual response, with scores and feedback."
+    },
+    "relationships": [
+      "Each AssessmentResult belongs to one Candidate and one Job",
+      "ChatMessages form the conversation transcript for an assessment",
+      "QuestionAnalysis breaks down the AI evaluation for each question in an AssessmentResult"
+    ]
+  },
+  "currentAssessment": {
+    "candidate": {
+      "id": "cand-001",
+      "name": "Priya Sharma",
+      "email": "priya.sharma@university.edu",
+      "avatarUrl": null
+    },
+    "job": {
+      "id": "job-001",
+      "title": "Frontend Developer Intern",
+      "company": "TechFlow Inc."
+    },
+    "progress": {
+      "currentQuestion": 3,
+      "totalQuestions": 8
+    },
+    "chatMessages": [
+      {
+        "id": "msg-001",
+        "role": "ai",
+        "content": "Hi Priya! I'm here to learn more about your skills and experience for the Frontend Developer Intern position at TechFlow Inc. Let's have a conversation about your background. Ready to get started?",
+        "timestamp": "2024-01-15T10:00:00Z"
+      },
+      {
+        "id": "msg-002",
+        "role": "candidate",
+        "content": "Yes, I'm ready! Excited to share more about myself.",
+        "timestamp": "2024-01-15T10:00:45Z"
+      },
+      {
+        "id": "msg-003",
+        "role": "ai",
+        "content": "Great! Let's start with your experience. Can you tell me about a web project you've built that you're particularly proud of? What technologies did you use and what challenges did you overcome?",
+        "timestamp": "2024-01-15T10:01:00Z"
+      },
+      {
+        "id": "msg-004",
+        "role": "candidate",
+        "content": "I built a task management app for my university's student council using React and Tailwind CSS. The biggest challenge was implementing real-time updates when multiple users edited tasks simultaneously. I solved it by integrating Firebase Realtime Database and using optimistic UI updates to keep the interface responsive.",
+        "timestamp": "2024-01-15T10:03:30Z"
+      },
+      {
+        "id": "msg-005",
+        "role": "ai",
+        "content": "That's impressive problem-solving with real-time collaboration! Now, imagine you're working on a feature and discover the design doesn't account for an edge case. How would you handle that situation?",
+        "timestamp": "2024-01-15T10:04:00Z"
+      },
+      {
+        "id": "msg-006",
+        "role": "candidate",
+        "content": "I'd first document the edge case with a specific example, then reach out to the designer to discuss it. I'd propose a few solutions that align with the overall design language and let them choose. In the meantime, I'd implement the main flow and add a TODO for the edge case so we don't block progress.",
+        "timestamp": "2024-01-15T10:06:15Z"
+      },
+      {
+        "id": "msg-007",
+        "role": "ai",
+        "content": "Excellent communication approach! Let's talk about learning. What's a frontend technology or concept you've been wanting to learn, and what steps have you taken toward learning it?",
+        "timestamp": "2024-01-15T10:06:45Z"
+      }
+    ]
+  },
+  "assessmentResults": [
+    {
+      "id": "result-001",
+      "candidate": {
+        "id": "cand-002",
+        "name": "Marcus Chen",
+        "email": "marcus.chen@stanford.edu",
+        "avatarUrl": null
+      },
+      "job": {
+        "id": "job-001",
+        "title": "Frontend Developer Intern",
+        "company": "TechFlow Inc."
+      },
+      "overallScore": 92,
+      "status": "completed",
+      "completedAt": "2024-01-14T15:30:00Z",
+      "summary": "Exceptional candidate with strong technical skills and excellent communication. Demonstrated deep understanding of React ecosystem and modern frontend practices. Shows initiative and problem-solving mindset.",
+      "questionAnalysis": [
+        {
+          "question": "Tell me about a web project you've built that you're particularly proud of.",
+          "response": "I created a collaborative code editor for my hackathon team using Next.js, Monaco Editor, and WebSockets. We won first place. The trickiest part was implementing cursor synchronization across users.",
+          "score": 95,
+          "feedback": "Demonstrates advanced technical skills and ability to tackle complex real-time problems. Hackathon success shows ability to deliver under pressure."
+        },
+        {
+          "question": "How do you handle discovering design edge cases during development?",
+          "response": "I screenshot the issue, annotate it, and share in our design channel. I suggest solutions but defer to the designer's judgment. I've found that bringing data about how often users might hit the edge case helps prioritize it.",
+          "score": 90,
+          "feedback": "Shows mature collaboration skills and data-driven thinking. Excellent approach to cross-functional communication."
+        },
+        {
+          "question": "What frontend technology are you currently learning?",
+          "response": "I'm diving deep into React Server Components and the app router in Next.js 14. I've been building small projects and reading the RFC discussions to understand the 'why' behind the decisions.",
+          "score": 92,
+          "feedback": "Proactive learner who goes beyond tutorials to understand underlying principles. Staying current with cutting-edge technologies."
+        }
+      ]
+    },
+    {
+      "id": "result-002",
+      "candidate": {
+        "id": "cand-003",
+        "name": "Aisha Patel",
+        "email": "aisha.p@berkeley.edu",
+        "avatarUrl": null
+      },
+      "job": {
+        "id": "job-001",
+        "title": "Frontend Developer Intern",
+        "company": "TechFlow Inc."
+      },
+      "overallScore": 85,
+      "status": "completed",
+      "completedAt": "2024-01-14T11:20:00Z",
+      "summary": "Strong candidate with solid fundamentals and good problem-solving skills. Shows enthusiasm for learning and collaborative mindset. Could benefit from more experience with complex state management.",
+      "questionAnalysis": [
+        {
+          "question": "Tell me about a web project you've built that you're particularly proud of.",
+          "response": "I built a recipe sharing platform for my family using React and Node.js. Users can add recipes, search by ingredients, and save favorites. I learned a lot about building REST APIs and managing user authentication.",
+          "score": 82,
+          "feedback": "Good full-stack project demonstrating practical skills. Shows initiative in solving real problems for users she cares about."
+        },
+        {
+          "question": "How do you handle discovering design edge cases during development?",
+          "response": "I usually try to figure out a solution myself first, then check with the designer if my approach works. I like to be proactive rather than blocking on every small decision.",
+          "score": 78,
+          "feedback": "Shows initiative but could improve communication timing. Checking with designers earlier prevents rework."
+        },
+        {
+          "question": "What frontend technology are you currently learning?",
+          "response": "I'm learning TypeScript! I've been converting my JavaScript projects to TypeScript to practice. It's challenging but I can already see how it catches bugs early.",
+          "score": 88,
+          "feedback": "Excellent choice for professional development. Hands-on approach to learning through real project conversion is effective."
+        }
+      ]
+    },
+    {
+      "id": "result-003",
+      "candidate": {
+        "id": "cand-004",
+        "name": "Jordan Williams",
+        "email": "jwilliams@mit.edu",
+        "avatarUrl": null
+      },
+      "job": {
+        "id": "job-002",
+        "title": "Data Analyst Intern",
+        "company": "DataVerse Analytics"
+      },
+      "overallScore": 78,
+      "status": "completed",
+      "completedAt": "2024-01-13T16:45:00Z",
+      "summary": "Solid analytical skills with good attention to detail. Strong SQL knowledge. Would benefit from more experience with data visualization tools and stakeholder communication.",
+      "questionAnalysis": [
+        {
+          "question": "Describe a data analysis project you've worked on.",
+          "response": "I analyzed my university's dining hall traffic patterns using Python and pandas. I collected swipe card data and found peak hours, which helped the dining services adjust staffing.",
+          "score": 80,
+          "feedback": "Practical project with real-world impact. Good use of data to drive operational decisions."
+        },
+        {
+          "question": "How do you ensure data quality in your analysis?",
+          "response": "I check for nulls and duplicates, validate against expected ranges, and compare against previous datasets when available.",
+          "score": 75,
+          "feedback": "Covers basic data quality checks. Could expand on validation strategies and documentation practices."
+        }
+      ]
+    },
+    {
+      "id": "result-004",
+      "candidate": {
+        "id": "cand-005",
+        "name": "Sofia Rodriguez",
+        "email": "sofia.r@ucla.edu",
+        "avatarUrl": null
+      },
+      "job": {
+        "id": "job-001",
+        "title": "Frontend Developer Intern",
+        "company": "TechFlow Inc."
+      },
+      "overallScore": 88,
+      "status": "completed",
+      "completedAt": "2024-01-13T09:15:00Z",
+      "summary": "Creative problem-solver with strong design sensibility. Excellent understanding of accessibility and user experience. Technical skills are solid with room for growth in performance optimization.",
+      "questionAnalysis": [
+        {
+          "question": "Tell me about a web project you've built that you're particularly proud of.",
+          "response": "I redesigned and rebuilt the website for a local nonprofit that helps refugees. I focused heavily on accessibility—screen reader support, keyboard navigation, and translations in 5 languages. It increased their volunteer signups by 40%.",
+          "score": 94,
+          "feedback": "Outstanding focus on accessibility and real-world impact. Measuring outcomes shows product thinking beyond just coding."
+        },
+        {
+          "question": "How do you handle discovering design edge cases during development?",
+          "response": "I keep a running document of edge cases I find and batch them for design review. For each one, I note the user scenario, current behavior, and my suggested fix. This makes our syncs really productive.",
+          "score": 90,
+          "feedback": "Excellent systematic approach to managing edge cases. Shows organization and respect for designer's time."
+        },
+        {
+          "question": "What frontend technology are you currently learning?",
+          "response": "I'm exploring animation libraries like Framer Motion. I believe good micro-interactions make apps feel polished and professional. I've been recreating animations I see in apps I love.",
+          "score": 85,
+          "feedback": "Good focus on user experience details. Animation skills complement frontend role well."
+        }
+      ]
+    },
+    {
+      "id": "result-005",
+      "candidate": {
+        "id": "cand-006",
+        "name": "Kevin Okonkwo",
+        "email": "kokonkwo@gatech.edu",
+        "avatarUrl": null
+      },
+      "job": {
+        "id": "job-001",
+        "title": "Frontend Developer Intern",
+        "company": "TechFlow Inc."
+      },
+      "overallScore": 65,
+      "status": "completed",
+      "completedAt": "2024-01-12T14:00:00Z",
+      "summary": "Shows potential but responses lack depth. Has foundational knowledge but limited hands-on project experience. Would benefit from building more complete projects.",
+      "questionAnalysis": [
+        {
+          "question": "Tell me about a web project you've built that you're particularly proud of.",
+          "response": "I made a to-do list app following a YouTube tutorial. It uses React and localStorage to save tasks.",
+          "score": 55,
+          "feedback": "Project is quite basic and follows a common tutorial. Looking for more original work or extensions beyond the tutorial."
+        },
+        {
+          "question": "How do you handle discovering design edge cases during development?",
+          "response": "I would probably just ask my manager or the designer what to do.",
+          "score": 60,
+          "feedback": "Shows willingness to seek help but lacks proactive problem-solving approach. Would benefit from developing more initiative."
+        },
+        {
+          "question": "What frontend technology are you currently learning?",
+          "response": "I want to learn Vue.js next because I heard it's easier than React.",
+          "score": 70,
+          "feedback": "Has learning goals but reasoning could be stronger. Choosing technologies based on ease rather than fit may limit growth."
+        }
+      ]
+    },
+    {
+      "id": "result-006",
+      "candidate": {
+        "id": "cand-007",
+        "name": "Emma Nakamura",
+        "email": "emma.n@uw.edu",
+        "avatarUrl": null
+      },
+      "job": {
+        "id": "job-002",
+        "title": "Data Analyst Intern",
+        "company": "DataVerse Analytics"
+      },
+      "overallScore": 91,
+      "status": "completed",
+      "completedAt": "2024-01-12T10:30:00Z",
+      "summary": "Exceptional analytical thinker with strong communication skills. Demonstrates ability to translate complex findings into actionable insights. Experience with modern data tools and visualization.",
+      "questionAnalysis": [
+        {
+          "question": "Describe a data analysis project you've worked on.",
+          "response": "I analyzed Seattle's bike-share data to optimize station placement. I used Python for data processing, PostGIS for spatial analysis, and Tableau for the final presentation to the city planning committee. My recommendations led to 3 new stations being approved.",
+          "score": 95,
+          "feedback": "Impressive end-to-end project with real stakeholder impact. Strong tool proficiency and ability to influence decisions."
+        },
+        {
+          "question": "How do you ensure data quality in your analysis?",
+          "response": "I follow a checklist: validate data types, check for outliers using IQR, verify joins didn't create duplicates, and always compare row counts at each transformation step. I also document assumptions and known data issues in a README.",
+          "score": 92,
+          "feedback": "Thorough and systematic approach to data quality. Documentation habit shows professionalism and reproducibility focus."
+        }
+      ]
+    }
+  ]
+}
