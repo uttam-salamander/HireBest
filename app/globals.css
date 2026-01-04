@@ -1,0 +1,33 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Design Tokens for HireBest */
+:root {
+  /* Colors - Using Tailwind color names */
+  --color-primary: orange;
+  --color-secondary: teal;
+  --color-neutral: stone;
+
+  /* Typography */
+  --font-heading: 'Quicksand', sans-serif;
+  --font-body: 'Quicksand', sans-serif;
+  --font-mono: 'IBM Plex Mono', monospace;
+
+  /* Light mode backgrounds */
+  --background: #fafaf9; /* stone-50 */
+  --foreground: #1c1917; /* stone-900 */
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #1c1917; /* stone-900 */
+    --foreground: #fafaf9; /* stone-50 */
+  }
+}
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+  font-family: var(--font-body);
+}
