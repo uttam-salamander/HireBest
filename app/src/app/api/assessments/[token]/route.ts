@@ -78,54 +78,66 @@ export async function GET(
       });
     }
 
-    // Update status to OPENED if first access
-    if (invitation.status === "SENT") {
+    // Use transaction to prevent race conditions when creating session
+    let session = invitation.session;
+    if (!session) {
+      const firstQuestion = invitation.job.template?.questions[0];
+
+      // Use interactive transaction for atomicity
+      session = await db.$transaction(async (tx) => {
+        // Double-check session doesn't exist (prevent race condition)
+        const existingSession = await tx.assessmentSession.findUnique({
+          where: { invitationId: invitation.id },
+          include: {
+            messages: { orderBy: { timestamp: "asc" } },
+            responses: true,
+          },
+        });
+
+        if (existingSession) {
+          return existingSession;
+        }
+
+        // Create session
+        const newSession = await tx.assessmentSession.create({
+          data: {
+            invitationId: invitation.id,
+            candidateId: invitation.candidateId,
+            currentQuestion: 0,
+          },
+        });
+
+        // Update invitation status
+        await tx.assessmentInvitation.update({
+          where: { id: invitation.id },
+          data: { status: "STARTED", startedAt: new Date() },
+        });
+
+        // Create first question message
+        if (firstQuestion) {
+          await tx.chatMessage.create({
+            data: {
+              sessionId: newSession.id,
+              role: "AI",
+              content: firstQuestion.questionText,
+            },
+          });
+        }
+
+        // Return session with messages
+        return tx.assessmentSession.findUnique({
+          where: { id: newSession.id },
+          include: {
+            messages: { orderBy: { timestamp: "asc" } },
+            responses: true,
+          },
+        });
+      });
+    } else if (invitation.status === "SENT") {
+      // Update status to OPENED if first access but session exists
       await db.assessmentInvitation.update({
         where: { id: invitation.id },
         data: { status: "OPENED", openedAt: new Date() },
-      });
-    }
-
-    // Create session if doesn't exist
-    let session = invitation.session;
-    if (!session) {
-      session = await db.assessmentSession.create({
-        data: {
-          invitationId: invitation.id,
-          candidateId: invitation.candidateId,
-          currentQuestion: 0,
-        },
-        include: {
-          messages: true,
-          responses: true,
-        },
-      });
-
-      // Update invitation status
-      await db.assessmentInvitation.update({
-        where: { id: invitation.id },
-        data: { status: "STARTED", startedAt: new Date() },
-      });
-
-      // Send first question
-      const firstQuestion = invitation.job.template?.questions[0];
-      if (firstQuestion) {
-        await db.chatMessage.create({
-          data: {
-            sessionId: session.id,
-            role: "AI",
-            content: firstQuestion.questionText,
-          },
-        });
-      }
-
-      // Refetch session with messages
-      session = await db.assessmentSession.findUnique({
-        where: { id: session.id },
-        include: {
-          messages: { orderBy: { timestamp: "asc" } },
-          responses: true,
-        },
       });
     }
 

@@ -21,8 +21,9 @@ export async function POST(req: NextRequest) {
     });
 
     if (existingUser) {
+      // Return generic error to prevent email enumeration
       return NextResponse.json(
-        { error: "Email already registered" },
+        { error: "Unable to create account. Please try again or contact support." },
         { status: 400 }
       );
     }

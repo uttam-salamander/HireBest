@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Quicksand, IBM_Plex_Mono } from "next/font/google";
+import { Providers } from "@/components/providers";
 import "./globals.css";
 
 const quicksand = Quicksand({
@@ -29,7 +30,7 @@ export default function RootLayout({
       <body
         className={`${quicksand.variable} ${ibmPlexMono.variable} font-sans antialiased`}
       >
-        {children}
+        <Providers>{children}</Providers>
       </body>
     </html>
   );
