@@ -7,7 +7,7 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 -- =====================================================
 -- COMPANIES TABLE
 -- =====================================================
-CREATE TABLE companies (
+CREATE TABLE IF NOT EXISTS companies (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   name TEXT NOT NULL,
   logo_url TEXT,
@@ -20,21 +20,23 @@ CREATE TABLE companies (
 -- =====================================================
 -- RECRUITERS TABLE (extends auth.users)
 -- =====================================================
-CREATE TABLE recruiters (
-  id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+CREATE TABLE IF NOT EXISTS recruiters (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
   name TEXT NOT NULL,
   email TEXT NOT NULL UNIQUE,
   company_id UUID REFERENCES companies(id) ON DELETE CASCADE,
-  role TEXT,
+  role TEXT DEFAULT 'recruiter',
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
 -- =====================================================
--- CANDIDATES TABLE (extends auth.users)
+-- CANDIDATES TABLE
 -- =====================================================
-CREATE TABLE candidates (
-  id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+CREATE TABLE IF NOT EXISTS candidates (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id UUID REFERENCES auth.users(id) ON DELETE SET NULL,
   name TEXT NOT NULL,
   email TEXT NOT NULL UNIQUE,
   avatar_url TEXT,
@@ -48,107 +50,149 @@ CREATE TABLE candidates (
 );
 
 -- =====================================================
+-- ASSESSMENT TEMPLATES TABLE
+-- =====================================================
+CREATE TABLE IF NOT EXISTS assessment_templates (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  company_id UUID REFERENCES companies(id) ON DELETE CASCADE,
+  created_by_id UUID REFERENCES recruiters(id) ON DELETE SET NULL,
+  name TEXT NOT NULL,
+  description TEXT,
+  question_count INTEGER DEFAULT 0,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- =====================================================
+-- TEMPLATE QUESTIONS TABLE
+-- =====================================================
+CREATE TABLE IF NOT EXISTS template_questions (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  template_id UUID REFERENCES assessment_templates(id) ON DELETE CASCADE,
+  order_index INTEGER NOT NULL,
+  question_text TEXT NOT NULL,
+  scoring_rubric TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  UNIQUE(template_id, order_index)
+);
+
+-- =====================================================
 -- JOBS TABLE
 -- =====================================================
-CREATE TABLE jobs (
+CREATE TABLE IF NOT EXISTS jobs (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   title TEXT NOT NULL,
   company_id UUID REFERENCES companies(id) ON DELETE CASCADE,
   recruiter_id UUID REFERENCES recruiters(id) ON DELETE SET NULL,
+  template_id UUID REFERENCES assessment_templates(id) ON DELETE SET NULL,
   description TEXT,
   requirements TEXT,
   location TEXT,
   job_type TEXT, -- 'internship', 'full-time', 'contract'
-  status TEXT DEFAULT 'active', -- 'active', 'closed', 'draft'
+  status TEXT DEFAULT 'draft' CHECK (status IN ('draft', 'active', 'closed')),
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
 -- =====================================================
--- APPLICATIONS TABLE
+-- ASSESSMENT INVITATIONS TABLE
 -- =====================================================
-CREATE TABLE applications (
+CREATE TABLE IF NOT EXISTS assessment_invitations (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  job_id UUID REFERENCES jobs(id) ON DELETE CASCADE,
   candidate_id UUID REFERENCES candidates(id) ON DELETE CASCADE,
-  job_id UUID REFERENCES jobs(id) ON DELETE CASCADE,
-  status TEXT DEFAULT 'pending', -- 'pending', 'reviewed', 'interviewing', 'offered', 'rejected'
-  cover_letter TEXT,
-  applied_at TIMESTAMPTZ DEFAULT NOW(),
-  updated_at TIMESTAMPTZ DEFAULT NOW(),
-  UNIQUE(candidate_id, job_id)
+  token TEXT NOT NULL UNIQUE,
+  candidate_email TEXT NOT NULL,
+  status TEXT DEFAULT 'sent' CHECK (status IN ('sent', 'opened', 'started', 'completed', 'expired')),
+  sent_at TIMESTAMPTZ DEFAULT NOW(),
+  expires_at TIMESTAMPTZ NOT NULL,
+  opened_at TIMESTAMPTZ,
+  started_at TIMESTAMPTZ,
+  completed_at TIMESTAMPTZ
 );
 
 -- =====================================================
--- ASSESSMENTS TABLE
+-- ASSESSMENT SESSIONS TABLE
 -- =====================================================
-CREATE TABLE assessments (
+CREATE TABLE IF NOT EXISTS assessment_sessions (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  job_id UUID REFERENCES jobs(id) ON DELETE CASCADE,
-  title TEXT NOT NULL,
-  instructions TEXT,
-  total_questions INTEGER DEFAULT 8,
-  duration_minutes INTEGER DEFAULT 30,
-  created_at TIMESTAMPTZ DEFAULT NOW(),
-  updated_at TIMESTAMPTZ DEFAULT NOW()
+  invitation_id UUID REFERENCES assessment_invitations(id) ON DELETE CASCADE UNIQUE,
+  candidate_id UUID REFERENCES candidates(id) ON DELETE CASCADE,
+  current_question INTEGER DEFAULT 0,
+  status TEXT DEFAULT 'in_progress' CHECK (status IN ('in_progress', 'completed', 'abandoned', 'expired')),
+  started_at TIMESTAMPTZ DEFAULT NOW(),
+  last_activity_at TIMESTAMPTZ DEFAULT NOW(),
+  completed_at TIMESTAMPTZ
+);
+
+-- =====================================================
+-- QUESTION RESPONSES TABLE
+-- =====================================================
+CREATE TABLE IF NOT EXISTS question_responses (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  session_id UUID REFERENCES assessment_sessions(id) ON DELETE CASCADE,
+  question_id UUID REFERENCES template_questions(id) ON DELETE CASCADE,
+  question_order INTEGER NOT NULL,
+  response_text TEXT NOT NULL,
+  score INTEGER CHECK (score >= 0 AND score <= 100),
+  ai_rationale TEXT,
+  submitted_at TIMESTAMPTZ DEFAULT NOW(),
+  scored_at TIMESTAMPTZ,
+  UNIQUE(session_id, question_id)
+);
+
+-- =====================================================
+-- CHAT MESSAGES TABLE
+-- =====================================================
+CREATE TABLE IF NOT EXISTS chat_messages (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  session_id UUID REFERENCES assessment_sessions(id) ON DELETE CASCADE,
+  role TEXT NOT NULL CHECK (role IN ('ai', 'candidate')),
+  content TEXT NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
 -- =====================================================
 -- ASSESSMENT RESULTS TABLE
 -- =====================================================
-CREATE TABLE assessment_results (
+CREATE TABLE IF NOT EXISTS assessment_results (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  session_id UUID REFERENCES assessment_sessions(id) ON DELETE CASCADE UNIQUE,
   candidate_id UUID REFERENCES candidates(id) ON DELETE CASCADE,
   job_id UUID REFERENCES jobs(id) ON DELETE CASCADE,
-  assessment_id UUID REFERENCES assessments(id) ON DELETE CASCADE,
   overall_score INTEGER CHECK (overall_score >= 0 AND overall_score <= 100),
-  status TEXT DEFAULT 'in_progress', -- 'in_progress', 'completed', 'abandoned'
   summary TEXT,
-  started_at TIMESTAMPTZ DEFAULT NOW(),
-  completed_at TIMESTAMPTZ,
-  created_at TIMESTAMPTZ DEFAULT NOW(),
-  updated_at TIMESTAMPTZ DEFAULT NOW()
-);
-
--- =====================================================
--- CHAT MESSAGES TABLE (for assessment conversations)
--- =====================================================
-CREATE TABLE chat_messages (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  assessment_result_id UUID REFERENCES assessment_results(id) ON DELETE CASCADE,
-  role TEXT NOT NULL CHECK (role IN ('ai', 'candidate')),
-  content TEXT NOT NULL,
-  question_number INTEGER,
-  created_at TIMESTAMPTZ DEFAULT NOW()
-);
-
--- =====================================================
--- QUESTION ANALYSIS TABLE (AI evaluation of responses)
--- =====================================================
-CREATE TABLE question_analysis (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  assessment_result_id UUID REFERENCES assessment_results(id) ON DELETE CASCADE,
-  question TEXT NOT NULL,
-  response TEXT NOT NULL,
-  score INTEGER CHECK (score >= 0 AND score <= 100),
-  feedback TEXT,
-  question_number INTEGER,
+  strengths TEXT,
+  areas_for_improvement TEXT,
+  duration_seconds INTEGER,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
 -- =====================================================
 -- INDEXES for performance
 -- =====================================================
-CREATE INDEX idx_recruiters_company ON recruiters(company_id);
-CREATE INDEX idx_jobs_company ON jobs(company_id);
-CREATE INDEX idx_jobs_status ON jobs(status);
-CREATE INDEX idx_applications_candidate ON applications(candidate_id);
-CREATE INDEX idx_applications_job ON applications(job_id);
-CREATE INDEX idx_applications_status ON applications(status);
-CREATE INDEX idx_assessment_results_candidate ON assessment_results(candidate_id);
-CREATE INDEX idx_assessment_results_job ON assessment_results(job_id);
-CREATE INDEX idx_assessment_results_status ON assessment_results(status);
-CREATE INDEX idx_chat_messages_result ON chat_messages(assessment_result_id);
-CREATE INDEX idx_question_analysis_result ON question_analysis(assessment_result_id);
+CREATE INDEX IF NOT EXISTS idx_recruiters_company ON recruiters(company_id);
+CREATE INDEX IF NOT EXISTS idx_recruiters_user ON recruiters(user_id);
+CREATE INDEX IF NOT EXISTS idx_candidates_user ON candidates(user_id);
+CREATE INDEX IF NOT EXISTS idx_candidates_email ON candidates(email);
+CREATE INDEX IF NOT EXISTS idx_templates_company ON assessment_templates(company_id);
+CREATE INDEX IF NOT EXISTS idx_template_questions_template ON template_questions(template_id);
+CREATE INDEX IF NOT EXISTS idx_jobs_company ON jobs(company_id);
+CREATE INDEX IF NOT EXISTS idx_jobs_recruiter ON jobs(recruiter_id);
+CREATE INDEX IF NOT EXISTS idx_jobs_template ON jobs(template_id);
+CREATE INDEX IF NOT EXISTS idx_jobs_status ON jobs(status);
+CREATE INDEX IF NOT EXISTS idx_invitations_job ON assessment_invitations(job_id);
+CREATE INDEX IF NOT EXISTS idx_invitations_candidate ON assessment_invitations(candidate_id);
+CREATE INDEX IF NOT EXISTS idx_invitations_token ON assessment_invitations(token);
+CREATE INDEX IF NOT EXISTS idx_invitations_status ON assessment_invitations(status);
+CREATE INDEX IF NOT EXISTS idx_sessions_invitation ON assessment_sessions(invitation_id);
+CREATE INDEX IF NOT EXISTS idx_sessions_candidate ON assessment_sessions(candidate_id);
+CREATE INDEX IF NOT EXISTS idx_responses_session ON question_responses(session_id);
+CREATE INDEX IF NOT EXISTS idx_chat_messages_session ON chat_messages(session_id);
+CREATE INDEX IF NOT EXISTS idx_results_session ON assessment_results(session_id);
+CREATE INDEX IF NOT EXISTS idx_results_candidate ON assessment_results(candidate_id);
+CREATE INDEX IF NOT EXISTS idx_results_job ON assessment_results(job_id);
+CREATE INDEX IF NOT EXISTS idx_results_score ON assessment_results(overall_score);
 
 -- =====================================================
 -- ROW LEVEL SECURITY (RLS) POLICIES
@@ -158,102 +202,178 @@ CREATE INDEX idx_question_analysis_result ON question_analysis(assessment_result
 ALTER TABLE companies ENABLE ROW LEVEL SECURITY;
 ALTER TABLE recruiters ENABLE ROW LEVEL SECURITY;
 ALTER TABLE candidates ENABLE ROW LEVEL SECURITY;
+ALTER TABLE assessment_templates ENABLE ROW LEVEL SECURITY;
+ALTER TABLE template_questions ENABLE ROW LEVEL SECURITY;
 ALTER TABLE jobs ENABLE ROW LEVEL SECURITY;
-ALTER TABLE applications ENABLE ROW LEVEL SECURITY;
-ALTER TABLE assessments ENABLE ROW LEVEL SECURITY;
-ALTER TABLE assessment_results ENABLE ROW LEVEL SECURITY;
+ALTER TABLE assessment_invitations ENABLE ROW LEVEL SECURITY;
+ALTER TABLE assessment_sessions ENABLE ROW LEVEL SECURITY;
+ALTER TABLE question_responses ENABLE ROW LEVEL SECURITY;
 ALTER TABLE chat_messages ENABLE ROW LEVEL SECURITY;
-ALTER TABLE question_analysis ENABLE ROW LEVEL SECURITY;
+ALTER TABLE assessment_results ENABLE ROW LEVEL SECURITY;
 
--- Candidates can read their own data
-CREATE POLICY "Candidates can view own profile" ON candidates
-  FOR SELECT USING (auth.uid() = id);
+-- Companies: Recruiters can view their company
+CREATE POLICY "Recruiters can view their company" ON companies
+  FOR SELECT USING (
+    EXISTS (SELECT 1 FROM recruiters WHERE user_id = auth.uid() AND company_id = companies.id)
+  );
 
-CREATE POLICY "Candidates can update own profile" ON candidates
-  FOR UPDATE USING (auth.uid() = id);
-
--- Recruiters can read their own data
+-- Recruiters: Can view and update own profile
 CREATE POLICY "Recruiters can view own profile" ON recruiters
-  FOR SELECT USING (auth.uid() = id);
+  FOR SELECT USING (user_id = auth.uid());
 
 CREATE POLICY "Recruiters can update own profile" ON recruiters
-  FOR UPDATE USING (auth.uid() = id);
+  FOR UPDATE USING (user_id = auth.uid());
 
--- Jobs are publicly readable, recruiters can manage their company's jobs
-CREATE POLICY "Anyone can view active jobs" ON jobs
-  FOR SELECT USING (status = 'active');
+-- Candidates: Can view and update own profile
+CREATE POLICY "Candidates can view own profile" ON candidates
+  FOR SELECT USING (user_id = auth.uid());
 
-CREATE POLICY "Recruiters can insert jobs for their company" ON jobs
-  FOR INSERT WITH CHECK (
-    EXISTS (SELECT 1 FROM recruiters WHERE id = auth.uid() AND company_id = jobs.company_id)
+CREATE POLICY "Candidates can update own profile" ON candidates
+  FOR UPDATE USING (user_id = auth.uid());
+
+-- Assessment Templates: Recruiters can manage their company's templates
+CREATE POLICY "Recruiters can view company templates" ON assessment_templates
+  FOR SELECT USING (
+    EXISTS (SELECT 1 FROM recruiters WHERE user_id = auth.uid() AND company_id = assessment_templates.company_id)
   );
 
-CREATE POLICY "Recruiters can update their company's jobs" ON jobs
+CREATE POLICY "Recruiters can create company templates" ON assessment_templates
+  FOR INSERT WITH CHECK (
+    EXISTS (SELECT 1 FROM recruiters WHERE user_id = auth.uid() AND company_id = assessment_templates.company_id)
+  );
+
+CREATE POLICY "Recruiters can update company templates" ON assessment_templates
   FOR UPDATE USING (
-    EXISTS (SELECT 1 FROM recruiters WHERE id = auth.uid() AND company_id = jobs.company_id)
+    EXISTS (SELECT 1 FROM recruiters WHERE user_id = auth.uid() AND company_id = assessment_templates.company_id)
   );
 
--- Applications
-CREATE POLICY "Candidates can view own applications" ON applications
-  FOR SELECT USING (candidate_id = auth.uid());
+CREATE POLICY "Recruiters can delete company templates" ON assessment_templates
+  FOR DELETE USING (
+    EXISTS (SELECT 1 FROM recruiters WHERE user_id = auth.uid() AND company_id = assessment_templates.company_id)
+  );
 
-CREATE POLICY "Candidates can create applications" ON applications
-  FOR INSERT WITH CHECK (candidate_id = auth.uid());
+-- Template Questions: Follow template access
+CREATE POLICY "Access template questions via template" ON template_questions
+  FOR ALL USING (
+    EXISTS (
+      SELECT 1 FROM assessment_templates t
+      JOIN recruiters r ON r.company_id = t.company_id
+      WHERE t.id = template_questions.template_id AND r.user_id = auth.uid()
+    )
+  );
 
-CREATE POLICY "Recruiters can view applications for their jobs" ON applications
+-- Jobs: Recruiters can manage their company's jobs
+CREATE POLICY "Recruiters can view company jobs" ON jobs
+  FOR SELECT USING (
+    EXISTS (SELECT 1 FROM recruiters WHERE user_id = auth.uid() AND company_id = jobs.company_id)
+  );
+
+CREATE POLICY "Recruiters can create company jobs" ON jobs
+  FOR INSERT WITH CHECK (
+    EXISTS (SELECT 1 FROM recruiters WHERE user_id = auth.uid() AND company_id = jobs.company_id)
+  );
+
+CREATE POLICY "Recruiters can update company jobs" ON jobs
+  FOR UPDATE USING (
+    EXISTS (SELECT 1 FROM recruiters WHERE user_id = auth.uid() AND company_id = jobs.company_id)
+  );
+
+CREATE POLICY "Recruiters can delete company jobs" ON jobs
+  FOR DELETE USING (
+    EXISTS (SELECT 1 FROM recruiters WHERE user_id = auth.uid() AND company_id = jobs.company_id)
+  );
+
+-- Assessment Invitations: Recruiters can manage, candidates can view their own
+CREATE POLICY "Recruiters can view job invitations" ON assessment_invitations
   FOR SELECT USING (
     EXISTS (
       SELECT 1 FROM jobs j
       JOIN recruiters r ON r.company_id = j.company_id
-      WHERE j.id = applications.job_id AND r.id = auth.uid()
+      WHERE j.id = assessment_invitations.job_id AND r.user_id = auth.uid()
     )
   );
 
--- Assessment Results
-CREATE POLICY "Candidates can view own assessment results" ON assessment_results
-  FOR SELECT USING (candidate_id = auth.uid());
-
-CREATE POLICY "Candidates can update own assessment results" ON assessment_results
-  FOR UPDATE USING (candidate_id = auth.uid());
-
-CREATE POLICY "Candidates can insert own assessment results" ON assessment_results
-  FOR INSERT WITH CHECK (candidate_id = auth.uid());
-
-CREATE POLICY "Recruiters can view assessment results for their jobs" ON assessment_results
-  FOR SELECT USING (
-    EXISTS (
-      SELECT 1 FROM jobs j
-      JOIN recruiters r ON r.company_id = j.company_id
-      WHERE j.id = assessment_results.job_id AND r.id = auth.uid()
-    )
-  );
-
--- Chat Messages
-CREATE POLICY "Users can view their assessment chat messages" ON chat_messages
-  FOR SELECT USING (
-    EXISTS (
-      SELECT 1 FROM assessment_results ar
-      WHERE ar.id = chat_messages.assessment_result_id
-      AND ar.candidate_id = auth.uid()
-    )
-  );
-
-CREATE POLICY "Users can insert their assessment chat messages" ON chat_messages
+CREATE POLICY "Recruiters can create invitations" ON assessment_invitations
   FOR INSERT WITH CHECK (
     EXISTS (
-      SELECT 1 FROM assessment_results ar
-      WHERE ar.id = chat_messages.assessment_result_id
-      AND ar.candidate_id = auth.uid()
+      SELECT 1 FROM jobs j
+      JOIN recruiters r ON r.company_id = j.company_id
+      WHERE j.id = assessment_invitations.job_id AND r.user_id = auth.uid()
     )
   );
 
--- Question Analysis
-CREATE POLICY "Users can view their question analysis" ON question_analysis
+-- Public token-based access for candidates (no auth required)
+CREATE POLICY "Anyone can view invitation by token" ON assessment_invitations
+  FOR SELECT USING (true);
+
+-- Assessment Sessions: Candidates can access their own
+CREATE POLICY "Candidates can view own sessions" ON assessment_sessions
+  FOR SELECT USING (
+    EXISTS (SELECT 1 FROM candidates WHERE id = assessment_sessions.candidate_id AND user_id = auth.uid())
+  );
+
+CREATE POLICY "Candidates can update own sessions" ON assessment_sessions
+  FOR UPDATE USING (
+    EXISTS (SELECT 1 FROM candidates WHERE id = assessment_sessions.candidate_id AND user_id = auth.uid())
+  );
+
+-- Recruiters can view sessions for their jobs
+CREATE POLICY "Recruiters can view job sessions" ON assessment_sessions
   FOR SELECT USING (
     EXISTS (
-      SELECT 1 FROM assessment_results ar
-      WHERE ar.id = question_analysis.assessment_result_id
-      AND ar.candidate_id = auth.uid()
+      SELECT 1 FROM assessment_invitations ai
+      JOIN jobs j ON j.id = ai.job_id
+      JOIN recruiters r ON r.company_id = j.company_id
+      WHERE ai.id = assessment_sessions.invitation_id AND r.user_id = auth.uid()
+    )
+  );
+
+-- Question Responses: Follow session access
+CREATE POLICY "Access responses via session" ON question_responses
+  FOR ALL USING (
+    EXISTS (
+      SELECT 1 FROM assessment_sessions s
+      JOIN candidates c ON c.id = s.candidate_id
+      WHERE s.id = question_responses.session_id AND c.user_id = auth.uid()
+    )
+    OR EXISTS (
+      SELECT 1 FROM assessment_sessions s
+      JOIN assessment_invitations ai ON ai.id = s.invitation_id
+      JOIN jobs j ON j.id = ai.job_id
+      JOIN recruiters r ON r.company_id = j.company_id
+      WHERE s.id = question_responses.session_id AND r.user_id = auth.uid()
+    )
+  );
+
+-- Chat Messages: Follow session access
+CREATE POLICY "Access chat via session" ON chat_messages
+  FOR ALL USING (
+    EXISTS (
+      SELECT 1 FROM assessment_sessions s
+      JOIN candidates c ON c.id = s.candidate_id
+      WHERE s.id = chat_messages.session_id AND c.user_id = auth.uid()
+    )
+    OR EXISTS (
+      SELECT 1 FROM assessment_sessions s
+      JOIN assessment_invitations ai ON ai.id = s.invitation_id
+      JOIN jobs j ON j.id = ai.job_id
+      JOIN recruiters r ON r.company_id = j.company_id
+      WHERE s.id = chat_messages.session_id AND r.user_id = auth.uid()
+    )
+  );
+
+-- Assessment Results: Candidates and recruiters can view
+CREATE POLICY "Candidates can view own results" ON assessment_results
+  FOR SELECT USING (
+    EXISTS (SELECT 1 FROM candidates WHERE id = assessment_results.candidate_id AND user_id = auth.uid())
+  );
+
+CREATE POLICY "Recruiters can view job results" ON assessment_results
+  FOR SELECT USING (
+    EXISTS (
+      SELECT 1 FROM jobs j
+      JOIN recruiters r ON r.company_id = j.company_id
+      WHERE j.id = assessment_results.job_id AND r.user_id = auth.uid()
     )
   );
 
@@ -271,23 +391,39 @@ END;
 $$ LANGUAGE plpgsql;
 
 -- Triggers to auto-update updated_at
+DROP TRIGGER IF EXISTS update_companies_updated_at ON companies;
 CREATE TRIGGER update_companies_updated_at BEFORE UPDATE ON companies
   FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_recruiters_updated_at ON recruiters;
 CREATE TRIGGER update_recruiters_updated_at BEFORE UPDATE ON recruiters
   FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_candidates_updated_at ON candidates;
 CREATE TRIGGER update_candidates_updated_at BEFORE UPDATE ON candidates
   FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_templates_updated_at ON assessment_templates;
+CREATE TRIGGER update_templates_updated_at BEFORE UPDATE ON assessment_templates
+  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+DROP TRIGGER IF EXISTS update_jobs_updated_at ON jobs;
 CREATE TRIGGER update_jobs_updated_at BEFORE UPDATE ON jobs
   FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
-CREATE TRIGGER update_applications_updated_at BEFORE UPDATE ON applications
-  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+-- Function to update template question count
+CREATE OR REPLACE FUNCTION update_template_question_count()
+RETURNS TRIGGER AS $$
+BEGIN
+  IF TG_OP = 'INSERT' THEN
+    UPDATE assessment_templates SET question_count = question_count + 1 WHERE id = NEW.template_id;
+  ELSIF TG_OP = 'DELETE' THEN
+    UPDATE assessment_templates SET question_count = question_count - 1 WHERE id = OLD.template_id;
+  END IF;
+  RETURN NULL;
+END;
+$$ LANGUAGE plpgsql;
 
-CREATE TRIGGER update_assessments_updated_at BEFORE UPDATE ON assessments
-  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
-
-CREATE TRIGGER update_assessment_results_updated_at BEFORE UPDATE ON assessment_results
-  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+DROP TRIGGER IF EXISTS update_question_count ON template_questions;
+CREATE TRIGGER update_question_count AFTER INSERT OR DELETE ON template_questions
+  FOR EACH ROW EXECUTE FUNCTION update_template_question_count();

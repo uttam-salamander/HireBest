@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { AssessmentResultsList } from '@/components/assessments'
 import { useAssessments } from '@/lib/hooks/useAssessments'
+import { AssessmentResult } from '@/types/assessments'
 import sampleData from '@/lib/sample-data.json'
 
 export default function AssessmentsPage() {
@@ -14,12 +15,12 @@ export default function AssessmentsPage() {
     // TODO: Navigate to details page
   }
 
-  const handleFilter = (filter: any) => {
+  const handleFilter = (filter: { jobId?: string; minScore?: number }) => {
     console.log('Filter:', filter)
     setSelectedJobId(filter.jobId)
   }
 
-  const handleSort = (field: string, direction: string) => {
+  const handleSort = (field: 'score' | 'date' | 'name', direction: 'asc' | 'desc') => {
     console.log('Sort:', field, direction)
     // Sorting is handled client-side in the component
   }
@@ -51,8 +52,14 @@ export default function AssessmentsPage() {
     )
   }
 
+  // Transform sample data to match AssessmentResult type
+  const transformedSampleData: AssessmentResult[] = sampleData.assessmentResults.map(result => ({
+    ...result,
+    status: result.status as 'completed' | 'in_progress' | 'abandoned'
+  }))
+
   // Use real data if available, otherwise fall back to sample data
-  const displayData = assessments.length > 0 ? assessments : sampleData.assessmentResults
+  const displayData = assessments.length > 0 ? assessments : transformedSampleData
 
   return (
     <AssessmentResultsList
