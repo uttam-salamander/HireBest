@@ -197,6 +197,17 @@ CREATE INDEX IF NOT EXISTS idx_results_score ON assessment_results(overall_score
 -- =====================================================
 -- ROW LEVEL SECURITY (RLS) POLICIES
 -- =====================================================
+--
+-- SECURITY MODEL:
+-- - Recruiters: Authenticated users who manage jobs, templates, and view results
+-- - Candidates: May or may not be authenticated; assessment-taking uses service role
+-- - Service Role: Used by API routes for assessment operations (bypasses RLS)
+--
+-- IMPORTANT: Assessment API routes use the service role key to bypass RLS.
+-- This allows unauthenticated candidates to take assessments while maintaining
+-- security through application-level token validation and rate limiting.
+--
+-- =====================================================
 
 -- Enable RLS on all tables
 ALTER TABLE companies ENABLE ROW LEVEL SECURITY;
@@ -211,27 +222,45 @@ ALTER TABLE question_responses ENABLE ROW LEVEL SECURITY;
 ALTER TABLE chat_messages ENABLE ROW LEVEL SECURITY;
 ALTER TABLE assessment_results ENABLE ROW LEVEL SECURITY;
 
--- Companies: Recruiters can view their company
+-- =====================================================
+-- COMPANIES POLICIES
+-- =====================================================
+
+-- Recruiters can view their own company
 CREATE POLICY "Recruiters can view their company" ON companies
   FOR SELECT USING (
     EXISTS (SELECT 1 FROM recruiters WHERE user_id = auth.uid() AND company_id = companies.id)
   );
 
--- Recruiters: Can view and update own profile
+-- =====================================================
+-- RECRUITERS POLICIES
+-- =====================================================
+
+-- Recruiters can view and update their own profile
 CREATE POLICY "Recruiters can view own profile" ON recruiters
   FOR SELECT USING (user_id = auth.uid());
 
 CREATE POLICY "Recruiters can update own profile" ON recruiters
   FOR UPDATE USING (user_id = auth.uid());
 
--- Candidates: Can view and update own profile
+-- =====================================================
+-- CANDIDATES POLICIES
+-- =====================================================
+
+-- Authenticated candidates can view their own profile
 CREATE POLICY "Candidates can view own profile" ON candidates
   FOR SELECT USING (user_id = auth.uid());
 
 CREATE POLICY "Candidates can update own profile" ON candidates
   FOR UPDATE USING (user_id = auth.uid());
 
--- Assessment Templates: Recruiters can manage their company's templates
+-- Note: Candidate creation during assessment is handled by service role
+
+-- =====================================================
+-- ASSESSMENT TEMPLATES POLICIES
+-- =====================================================
+
+-- Recruiters can fully manage their company's templates
 CREATE POLICY "Recruiters can view company templates" ON assessment_templates
   FOR SELECT USING (
     EXISTS (SELECT 1 FROM recruiters WHERE user_id = auth.uid() AND company_id = assessment_templates.company_id)
@@ -252,8 +281,12 @@ CREATE POLICY "Recruiters can delete company templates" ON assessment_templates
     EXISTS (SELECT 1 FROM recruiters WHERE user_id = auth.uid() AND company_id = assessment_templates.company_id)
   );
 
--- Template Questions: Follow template access
-CREATE POLICY "Access template questions via template" ON template_questions
+-- =====================================================
+-- TEMPLATE QUESTIONS POLICIES
+-- =====================================================
+
+-- Recruiters can manage questions for their company's templates
+CREATE POLICY "Recruiters can manage template questions" ON template_questions
   FOR ALL USING (
     EXISTS (
       SELECT 1 FROM assessment_templates t
@@ -262,7 +295,13 @@ CREATE POLICY "Access template questions via template" ON template_questions
     )
   );
 
--- Jobs: Recruiters can manage their company's jobs
+-- Note: Questions are read during assessment via service role
+
+-- =====================================================
+-- JOBS POLICIES
+-- =====================================================
+
+-- Recruiters can fully manage their company's jobs
 CREATE POLICY "Recruiters can view company jobs" ON jobs
   FOR SELECT USING (
     EXISTS (SELECT 1 FROM recruiters WHERE user_id = auth.uid() AND company_id = jobs.company_id)
@@ -283,7 +322,11 @@ CREATE POLICY "Recruiters can delete company jobs" ON jobs
     EXISTS (SELECT 1 FROM recruiters WHERE user_id = auth.uid() AND company_id = jobs.company_id)
   );
 
--- Assessment Invitations: Recruiters can manage, candidates can view their own
+-- =====================================================
+-- ASSESSMENT INVITATIONS POLICIES
+-- =====================================================
+
+-- Recruiters can view invitations for their company's jobs
 CREATE POLICY "Recruiters can view job invitations" ON assessment_invitations
   FOR SELECT USING (
     EXISTS (
@@ -293,6 +336,7 @@ CREATE POLICY "Recruiters can view job invitations" ON assessment_invitations
     )
   );
 
+-- Recruiters can create invitations for their company's jobs
 CREATE POLICY "Recruiters can create invitations" ON assessment_invitations
   FOR INSERT WITH CHECK (
     EXISTS (
@@ -302,22 +346,24 @@ CREATE POLICY "Recruiters can create invitations" ON assessment_invitations
     )
   );
 
--- Public token-based access for candidates (no auth required)
-CREATE POLICY "Anyone can view invitation by token" ON assessment_invitations
-  FOR SELECT USING (true);
-
--- Assessment Sessions: Candidates can access their own
-CREATE POLICY "Candidates can view own sessions" ON assessment_sessions
-  FOR SELECT USING (
-    EXISTS (SELECT 1 FROM candidates WHERE id = assessment_sessions.candidate_id AND user_id = auth.uid())
-  );
-
-CREATE POLICY "Candidates can update own sessions" ON assessment_sessions
+-- Recruiters can update invitation status (e.g., resend, cancel)
+CREATE POLICY "Recruiters can update invitations" ON assessment_invitations
   FOR UPDATE USING (
-    EXISTS (SELECT 1 FROM candidates WHERE id = assessment_sessions.candidate_id AND user_id = auth.uid())
+    EXISTS (
+      SELECT 1 FROM jobs j
+      JOIN recruiters r ON r.company_id = j.company_id
+      WHERE j.id = assessment_invitations.job_id AND r.user_id = auth.uid()
+    )
   );
 
--- Recruiters can view sessions for their jobs
+-- SECURITY NOTE: Token-based access for candidates is handled by service role
+-- in API routes with application-level validation. NO public access policy.
+
+-- =====================================================
+-- ASSESSMENT SESSIONS POLICIES
+-- =====================================================
+
+-- Recruiters can view sessions for their company's jobs (read-only)
 CREATE POLICY "Recruiters can view job sessions" ON assessment_sessions
   FOR SELECT USING (
     EXISTS (
@@ -328,15 +374,23 @@ CREATE POLICY "Recruiters can view job sessions" ON assessment_sessions
     )
   );
 
--- Question Responses: Follow session access
-CREATE POLICY "Access responses via session" ON question_responses
-  FOR ALL USING (
+-- Authenticated candidates can view their own sessions
+CREATE POLICY "Candidates can view own sessions" ON assessment_sessions
+  FOR SELECT USING (
+    EXISTS (SELECT 1 FROM candidates WHERE id = assessment_sessions.candidate_id AND user_id = auth.uid())
+  );
+
+-- SECURITY NOTE: Session creation and updates during assessment are handled
+-- by service role in API routes. No INSERT/UPDATE policies for anon/candidates.
+
+-- =====================================================
+-- QUESTION RESPONSES POLICIES
+-- =====================================================
+
+-- Recruiters can view responses for their company's assessments (read-only)
+CREATE POLICY "Recruiters can view responses" ON question_responses
+  FOR SELECT USING (
     EXISTS (
-      SELECT 1 FROM assessment_sessions s
-      JOIN candidates c ON c.id = s.candidate_id
-      WHERE s.id = question_responses.session_id AND c.user_id = auth.uid()
-    )
-    OR EXISTS (
       SELECT 1 FROM assessment_sessions s
       JOIN assessment_invitations ai ON ai.id = s.invitation_id
       JOIN jobs j ON j.id = ai.job_id
@@ -345,15 +399,27 @@ CREATE POLICY "Access responses via session" ON question_responses
     )
   );
 
--- Chat Messages: Follow session access
-CREATE POLICY "Access chat via session" ON chat_messages
-  FOR ALL USING (
+-- Authenticated candidates can view their own responses
+CREATE POLICY "Candidates can view own responses" ON question_responses
+  FOR SELECT USING (
     EXISTS (
       SELECT 1 FROM assessment_sessions s
       JOIN candidates c ON c.id = s.candidate_id
-      WHERE s.id = chat_messages.session_id AND c.user_id = auth.uid()
+      WHERE s.id = question_responses.session_id AND c.user_id = auth.uid()
     )
-    OR EXISTS (
+  );
+
+-- SECURITY NOTE: Response creation is handled by service role during assessment.
+-- No INSERT policy for anon/candidates to prevent score manipulation.
+
+-- =====================================================
+-- CHAT MESSAGES POLICIES
+-- =====================================================
+
+-- Recruiters can view chat messages for their company's assessments (read-only)
+CREATE POLICY "Recruiters can view chat messages" ON chat_messages
+  FOR SELECT USING (
+    EXISTS (
       SELECT 1 FROM assessment_sessions s
       JOIN assessment_invitations ai ON ai.id = s.invitation_id
       JOIN jobs j ON j.id = ai.job_id
@@ -362,12 +428,24 @@ CREATE POLICY "Access chat via session" ON chat_messages
     )
   );
 
--- Assessment Results: Candidates and recruiters can view
-CREATE POLICY "Candidates can view own results" ON assessment_results
+-- Authenticated candidates can view their own chat messages
+CREATE POLICY "Candidates can view own chat" ON chat_messages
   FOR SELECT USING (
-    EXISTS (SELECT 1 FROM candidates WHERE id = assessment_results.candidate_id AND user_id = auth.uid())
+    EXISTS (
+      SELECT 1 FROM assessment_sessions s
+      JOIN candidates c ON c.id = s.candidate_id
+      WHERE s.id = chat_messages.session_id AND c.user_id = auth.uid()
+    )
   );
 
+-- SECURITY NOTE: Message creation is handled by service role during assessment.
+-- No INSERT policy for anon/candidates to prevent message injection.
+
+-- =====================================================
+-- ASSESSMENT RESULTS POLICIES
+-- =====================================================
+
+-- Recruiters can view results for their company's jobs (read-only)
 CREATE POLICY "Recruiters can view job results" ON assessment_results
   FOR SELECT USING (
     EXISTS (
@@ -376,6 +454,15 @@ CREATE POLICY "Recruiters can view job results" ON assessment_results
       WHERE j.id = assessment_results.job_id AND r.user_id = auth.uid()
     )
   );
+
+-- Authenticated candidates can view their own results
+CREATE POLICY "Candidates can view own results" ON assessment_results
+  FOR SELECT USING (
+    EXISTS (SELECT 1 FROM candidates WHERE id = assessment_results.candidate_id AND user_id = auth.uid())
+  );
+
+-- SECURITY NOTE: Result creation is handled by service role when assessment completes.
+-- No INSERT/UPDATE policy for anon/candidates to prevent score tampering.
 
 -- =====================================================
 -- FUNCTIONS AND TRIGGERS
