@@ -42,11 +42,11 @@ export function CandidateAssessment({
   }
 
   return (
-    <div className="flex h-screen bg-stone-50 dark:bg-stone-950">
+    <div className="flex h-screen bg-background">
       {/* Mobile Sidebar Overlay */}
       {sidebarOpen && (
         <div
-          className="fixed inset-0 z-40 bg-black/50 lg:hidden"
+          className="fixed inset-0 z-40 bg-foreground/20 lg:hidden"
           onClick={() => setSidebarOpen(false)}
         />
       )}
@@ -77,32 +77,32 @@ export function CandidateAssessment({
       {/* Main Chat Area */}
       <div className="flex flex-1 flex-col">
         {/* Header */}
-        <header className="flex items-center justify-between border-b border-stone-200 bg-white px-4 py-4 dark:border-stone-800 dark:bg-stone-900 sm:px-6">
+        <header className="flex items-center justify-between border-b border-border bg-card px-4 py-4 sm:px-6">
           <div className="flex items-center gap-3">
             {/* Mobile menu button */}
             <button
               type="button"
               onClick={() => setSidebarOpen(true)}
-              className="flex h-10 w-10 items-center justify-center rounded-lg text-stone-600 hover:bg-stone-100 dark:text-stone-400 dark:hover:bg-stone-800 lg:hidden"
+              className="flex h-10 w-10 items-center justify-center rounded-lg text-muted-foreground hover:bg-secondary lg:hidden"
               aria-label="Open sidebar"
             >
               <Menu className="h-5 w-5" />
             </button>
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-orange-400 to-orange-600 shadow-lg shadow-orange-500/20">
-              <span className="text-lg font-bold text-white">H</span>
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary shadow-sm">
+              <span className="font-display text-lg font-bold text-primary-foreground">H</span>
             </div>
             <div>
-              <h1 className="font-heading text-lg font-semibold text-stone-900 dark:text-stone-100">
+              <h1 className="font-display text-lg font-semibold text-foreground">
                 HireBest Assessment
               </h1>
-              <p className="text-sm text-stone-500 dark:text-stone-400">
+              <p className="text-sm text-muted-foreground">
                 {assessment.job.title} at {assessment.job.company}
               </p>
             </div>
           </div>
           <div className="hidden items-center gap-2 sm:flex">
-            <span className="inline-flex items-center rounded-full bg-teal-50 px-3 py-1 text-sm font-medium text-teal-700 dark:bg-teal-900/30 dark:text-teal-400">
-              <span className="mr-1.5 h-2 w-2 animate-pulse rounded-full bg-teal-500" />
+            <span className="inline-flex items-center rounded-md bg-success/10 px-3 py-1 text-sm font-medium text-success">
+              <span className="mr-1.5 h-2 w-2 animate-pulse rounded-full bg-success" />
               Live Session
             </span>
           </div>
@@ -121,14 +121,14 @@ export function CandidateAssessment({
 
             {isTyping && (
               <div className="flex items-start gap-3">
-                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-teal-400 to-teal-600">
-                  <span className="text-sm font-semibold text-white">AI</span>
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-accent">
+                  <span className="text-sm font-semibold text-accent-foreground">AI</span>
                 </div>
-                <div className="rounded-2xl rounded-tl-md bg-white px-4 py-3 shadow-sm dark:bg-stone-800">
+                <div className="rounded-2xl rounded-tl-md bg-card px-4 py-3 shadow-sm border border-border">
                   <div className="flex items-center gap-1">
-                    <span className="h-2 w-2 animate-bounce rounded-full bg-stone-400 [animation-delay:-0.3s]" />
-                    <span className="h-2 w-2 animate-bounce rounded-full bg-stone-400 [animation-delay:-0.15s]" />
-                    <span className="h-2 w-2 animate-bounce rounded-full bg-stone-400" />
+                    <span className="h-2 w-2 animate-bounce rounded-full bg-muted-foreground [animation-delay:-0.3s]" />
+                    <span className="h-2 w-2 animate-bounce rounded-full bg-muted-foreground [animation-delay:-0.15s]" />
+                    <span className="h-2 w-2 animate-bounce rounded-full bg-muted-foreground" />
                   </div>
                 </div>
               </div>
@@ -139,7 +139,7 @@ export function CandidateAssessment({
         </div>
 
         {/* Input Area */}
-        <div className="border-t border-stone-200 bg-white p-4 dark:border-stone-800 dark:bg-stone-900 sm:p-6">
+        <div className="border-t border-border bg-card p-4 sm:p-6">
           <form onSubmit={handleSubmit} className="mx-auto max-w-2xl">
             <div className="relative">
               <textarea
@@ -149,17 +149,17 @@ export function CandidateAssessment({
                 onKeyDown={handleKeyDown}
                 placeholder="Type your response..."
                 rows={3}
-                className="w-full resize-none rounded-xl border border-stone-200 bg-stone-50 px-4 py-3 pr-14 text-stone-900 placeholder-stone-400 transition-all focus:border-orange-300 focus:bg-white focus:outline-none focus:ring-2 focus:ring-orange-500/20 dark:border-stone-700 dark:bg-stone-800 dark:text-stone-100 dark:placeholder-stone-500 dark:focus:border-orange-600 dark:focus:bg-stone-800"
+                className="w-full resize-none rounded-lg border border-border bg-background px-4 py-3 pr-14 text-foreground placeholder-muted-foreground transition-all focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
               />
               <button
                 type="submit"
                 disabled={!inputValue.trim()}
-                className="absolute bottom-3 right-3 flex h-10 w-10 items-center justify-center rounded-lg bg-orange-500 text-white shadow-lg shadow-orange-500/30 transition-all hover:bg-orange-600 hover:shadow-orange-500/40 disabled:cursor-not-allowed disabled:bg-stone-300 disabled:shadow-none dark:disabled:bg-stone-600"
+                className="absolute bottom-3 right-3 flex h-10 w-10 items-center justify-center rounded-lg bg-primary text-primary-foreground shadow-sm transition-all hover:bg-primary/90 disabled:cursor-not-allowed disabled:bg-muted disabled:text-muted-foreground disabled:shadow-none"
               >
                 <Send className="h-5 w-5" />
               </button>
             </div>
-            <p className="mt-2 text-center text-xs text-stone-400 dark:text-stone-500">
+            <p className="mt-2 text-center text-xs text-muted-foreground">
               Press Enter to send, Shift+Enter for new line
             </p>
           </form>

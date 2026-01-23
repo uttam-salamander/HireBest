@@ -79,7 +79,7 @@ export default function DashboardLayout({
       {/* Mobile sidebar overlay */}
       {sidebarOpen && (
         <div
-          className="fixed inset-0 z-40 bg-black/50 lg:hidden"
+          className="fixed inset-0 z-40 bg-foreground/20 lg:hidden"
           onClick={() => setSidebarOpen(false)}
         />
       )}
@@ -87,21 +87,21 @@ export default function DashboardLayout({
       {/* Sidebar */}
       <aside
         className={cn(
-          "fixed inset-y-0 left-0 z-50 flex flex-col bg-sidebar border-r border-sidebar-border transition-all duration-300",
+          "fixed inset-y-0 left-0 z-50 flex flex-col bg-card border-r border-border transition-all duration-300",
           sidebarCollapsed ? "w-16" : "w-64",
           sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
         )}
       >
         {/* Logo */}
-        <div className="flex h-16 items-center justify-between px-4 border-b border-sidebar-border">
+        <div className="flex h-16 items-center justify-between px-4 border-b border-border">
           {!sidebarCollapsed && (
             <Link href="/dashboard" className="flex items-center gap-2">
               <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
-                <span className="text-sm font-bold text-primary-foreground">
-                  HB
+                <span className="font-display text-sm font-bold text-primary-foreground">
+                  H
                 </span>
               </div>
-              <span className="text-lg font-semibold text-sidebar-foreground">
+              <span className="font-display text-lg font-semibold text-foreground">
                 HireBest
               </span>
             </Link>
@@ -111,8 +111,8 @@ export default function DashboardLayout({
               href="/dashboard"
               className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary mx-auto"
             >
-              <span className="text-sm font-bold text-primary-foreground">
-                HB
+              <span className="font-display text-sm font-bold text-primary-foreground">
+                H
               </span>
             </Link>
           )}
@@ -139,8 +139,8 @@ export default function DashboardLayout({
                 className={cn(
                   "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
                   isActive
-                    ? "bg-sidebar-accent text-sidebar-primary"
-                    : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+                    ? "bg-primary/10 text-primary"
+                    : "text-muted-foreground hover:bg-secondary hover:text-foreground",
                   sidebarCollapsed && "justify-center px-2"
                 )}
                 title={sidebarCollapsed ? item.name : undefined}
@@ -155,7 +155,7 @@ export default function DashboardLayout({
         </nav>
 
         {/* Collapse toggle (desktop only) */}
-        <div className="hidden lg:block p-3 border-t border-sidebar-border">
+        <div className="hidden lg:block p-3 border-t border-border">
           <Button
             variant="ghost"
             size="sm"
@@ -177,7 +177,7 @@ export default function DashboardLayout({
         </div>
 
         {/* User section */}
-        <div className="border-t border-sidebar-border p-3">
+        <div className="border-t border-border p-3">
           <div
             className={cn(
               "flex items-center gap-3",
@@ -186,13 +186,13 @@ export default function DashboardLayout({
           >
             <Avatar className="h-9 w-9">
               <AvatarImage src={user?.user_metadata?.avatar_url ?? undefined} />
-              <AvatarFallback className="bg-primary/10 text-primary text-sm">
+              <AvatarFallback className="bg-primary text-primary-foreground text-sm">
                 {initials || <UserIcon className="h-4 w-4" />}
               </AvatarFallback>
             </Avatar>
             {!sidebarCollapsed && (
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-sidebar-foreground truncate">
+                <p className="text-sm font-medium text-foreground truncate">
                   {user?.user_metadata?.name || "User"}
                 </p>
                 <p className="text-xs text-muted-foreground truncate">
@@ -234,7 +234,7 @@ export default function DashboardLayout({
         )}
       >
         {/* Header */}
-        <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-4 lg:px-6">
+        <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-4 lg:px-6">
           <Button
             variant="ghost"
             size="icon"
@@ -250,7 +250,7 @@ export default function DashboardLayout({
           <div className="flex items-center gap-3 lg:hidden">
             <Avatar className="h-8 w-8">
               <AvatarImage src={user?.user_metadata?.avatar_url ?? undefined} />
-              <AvatarFallback className="bg-primary/10 text-primary text-xs">
+              <AvatarFallback className="bg-primary text-primary-foreground text-xs">
                 {initials || <UserIcon className="h-3 w-3" />}
               </AvatarFallback>
             </Avatar>

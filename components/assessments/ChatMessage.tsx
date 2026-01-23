@@ -27,12 +27,12 @@ export function ChatMessage({ message, isLatest }: ChatMessageProps) {
     >
       {/* Avatar */}
       {isAI ? (
-        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-teal-400 to-teal-600 shadow-md shadow-teal-500/20">
-          <span className="text-sm font-semibold text-white">AI</span>
+        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-accent">
+          <span className="text-sm font-semibold text-accent-foreground">AI</span>
         </div>
       ) : (
-        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-orange-400 to-orange-500 shadow-md shadow-orange-500/20">
-          <span className="text-sm font-semibold text-white">You</span>
+        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary">
+          <span className="text-sm font-semibold text-primary-foreground">You</span>
         </div>
       )}
 
@@ -41,8 +41,8 @@ export function ChatMessage({ message, isLatest }: ChatMessageProps) {
         <div
           className={`inline-block rounded-2xl px-4 py-3 ${
             isAI
-              ? 'rounded-tl-md bg-white text-stone-800 shadow-sm dark:bg-stone-800 dark:text-stone-200'
-              : 'rounded-tr-md bg-gradient-to-br from-orange-500 to-orange-600 text-white shadow-lg shadow-orange-500/20'
+              ? 'rounded-tl-md bg-card text-foreground shadow-sm border border-border'
+              : 'rounded-tr-md bg-primary text-primary-foreground'
           }`}
         >
           <p className="whitespace-pre-wrap text-[15px] leading-relaxed">
@@ -50,7 +50,7 @@ export function ChatMessage({ message, isLatest }: ChatMessageProps) {
           </p>
         </div>
         <p
-          className={`mt-1.5 text-xs text-stone-400 dark:text-stone-500 ${
+          className={`mt-1.5 text-xs text-muted-foreground ${
             isAI ? '' : 'mr-1'
           }`}
         >

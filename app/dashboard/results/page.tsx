@@ -174,9 +174,9 @@ function ResultsPageContent() {
   };
 
   const getScoreColor = (score: number) => {
-    if (score >= 80) return "text-green-600 bg-green-100 dark:text-green-400 dark:bg-green-900/30";
-    if (score >= 60) return "text-yellow-600 bg-yellow-100 dark:text-yellow-400 dark:bg-yellow-900/30";
-    return "text-red-600 bg-red-100 dark:text-red-400 dark:bg-red-900/30";
+    if (score >= 85) return "text-success bg-success/10";
+    if (score >= 70) return "text-primary bg-primary/10";
+    return "text-muted-foreground bg-secondary";
   };
 
   const formatDuration = (seconds: number | null) => {
@@ -207,11 +207,11 @@ function ResultsPageContent() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
+          <h1 className="font-display text-2xl font-bold tracking-tight flex items-center gap-2">
             <BarChart3 className="h-6 w-6 text-primary" />
             Assessment Results
           </h1>
@@ -223,7 +223,7 @@ function ResultsPageContent() {
 
       {/* Search and Filters */}
       <Card>
-        <CardContent className="pt-6">
+        <CardContent className="pt-4">
           <form onSubmit={handleSearch} className="space-y-4">
             <div className="flex flex-col sm:flex-row gap-4">
               <div className="flex-1 relative">
@@ -261,7 +261,7 @@ function ResultsPageContent() {
                       setJobId(e.target.value);
                       setPage(1);
                     }}
-                    className="w-full h-9 px-3 rounded-md border border-input bg-background text-sm"
+                    className="w-full h-9 px-3 rounded-md border border-border bg-card text-sm"
                   >
                     <option value="">All Jobs</option>
                     {jobs.map((job) => (
@@ -340,7 +340,7 @@ function ResultsPageContent() {
             </div>
           ) : results.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-12 text-center">
-              <div className="p-3 rounded-full bg-muted mb-3">
+              <div className="p-3 rounded-full bg-secondary mb-3">
                 <BarChart3 className="h-6 w-6 text-muted-foreground" />
               </div>
               <p className="text-muted-foreground">No results found</p>
@@ -393,12 +393,12 @@ function ResultsPageContent() {
                         onClick={() =>
                           router.push(`/dashboard/results/${result.id}`)
                         }
-                        className="border-b last:border-0 hover:bg-accent/50 cursor-pointer transition-colors"
+                        className="border-b last:border-0 hover:bg-secondary/50 cursor-pointer transition-colors"
                       >
                         <td className="py-4 px-4">
                           <div className="flex items-center gap-3">
                             <Avatar className="h-9 w-9">
-                              <AvatarFallback className="bg-primary/10 text-primary text-sm">
+                              <AvatarFallback className="bg-primary text-primary-foreground text-sm">
                                 {result.candidateName
                                   .split(" ")
                                   .map((n) => n[0])
@@ -422,7 +422,7 @@ function ResultsPageContent() {
                         </td>
                         <td className="py-4 px-4">
                           <span
-                            className={`inline-flex items-center px-2.5 py-1 rounded-full text-sm font-medium ${getScoreColor(result.overallScore)}`}
+                            className={`inline-flex items-center px-2.5 py-1 rounded-md text-sm font-medium ${getScoreColor(result.overallScore)}`}
                           >
                             {result.overallScore}%
                           </span>
@@ -448,12 +448,12 @@ function ResultsPageContent() {
                   <Link
                     key={result.id}
                     href={`/dashboard/results/${result.id}`}
-                    className="block p-4 rounded-lg border hover:bg-accent/50 transition-colors"
+                    className="block p-4 rounded-lg border hover:bg-secondary/50 transition-colors"
                   >
                     <div className="flex items-start justify-between gap-4">
                       <div className="flex items-center gap-3">
                         <Avatar className="h-10 w-10">
-                          <AvatarFallback className="bg-primary/10 text-primary text-sm">
+                          <AvatarFallback className="bg-primary text-primary-foreground text-sm">
                             {result.candidateName
                               .split(" ")
                               .map((n) => n[0])
@@ -470,7 +470,7 @@ function ResultsPageContent() {
                         </div>
                       </div>
                       <span
-                        className={`inline-flex items-center px-2.5 py-1 rounded-full text-sm font-medium ${getScoreColor(result.overallScore)}`}
+                        className={`inline-flex items-center px-2.5 py-1 rounded-md text-sm font-medium ${getScoreColor(result.overallScore)}`}
                       >
                         {result.overallScore}%
                       </span>

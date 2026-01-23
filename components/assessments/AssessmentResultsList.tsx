@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Search, SlidersHorizontal, ArrowUpDown, ChevronDown } from 'lucide-react'
+import { Search, ArrowUpDown, ChevronDown } from 'lucide-react'
 import type { AssessmentResultsListProps } from '@/types/assessments'
 import { AssessmentResultCard } from './AssessmentResultCard'
 
@@ -71,40 +71,40 @@ export function AssessmentResultsList({
   const highScoreCount = results.filter((r) => r.overallScore >= 85).length
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* Header */}
       <div>
-        <h1 className="font-heading text-2xl font-bold text-stone-900 dark:text-stone-100">
+        <h1 className="font-display text-2xl font-bold text-foreground">
           Assessment Results
         </h1>
-        <p className="mt-1 text-stone-500 dark:text-stone-400">
+        <p className="mt-1 text-muted-foreground">
           Review candidate assessments and AI-generated insights
         </p>
       </div>
 
       {/* Stats Cards */}
       <div className="grid gap-4 sm:grid-cols-3">
-        <div className="rounded-xl border border-stone-200 bg-white p-5 dark:border-stone-800 dark:bg-stone-900">
-          <p className="text-sm font-medium text-stone-500 dark:text-stone-400">
+        <div className="rounded-lg border border-border bg-card p-4">
+          <p className="text-sm font-medium text-muted-foreground">
             Total Assessments
           </p>
-          <p className="mt-1 text-3xl font-bold text-stone-900 dark:text-stone-100">
+          <p className="mt-1 text-3xl font-bold text-foreground">
             {results.length}
           </p>
         </div>
-        <div className="rounded-xl border border-stone-200 bg-white p-5 dark:border-stone-800 dark:bg-stone-900">
-          <p className="text-sm font-medium text-stone-500 dark:text-stone-400">
+        <div className="rounded-lg border border-border bg-card p-4">
+          <p className="text-sm font-medium text-muted-foreground">
             Average Score
           </p>
-          <p className="mt-1 text-3xl font-bold text-orange-600 dark:text-orange-400">
+          <p className="mt-1 text-3xl font-bold text-primary">
             {avgScore}%
           </p>
         </div>
-        <div className="rounded-xl border border-stone-200 bg-white p-5 dark:border-stone-800 dark:bg-stone-900">
-          <p className="text-sm font-medium text-stone-500 dark:text-stone-400">
+        <div className="rounded-lg border border-border bg-card p-4">
+          <p className="text-sm font-medium text-muted-foreground">
             High Performers (85+)
           </p>
-          <p className="mt-1 text-3xl font-bold text-teal-600 dark:text-teal-400">
+          <p className="mt-1 text-3xl font-bold text-success">
             {highScoreCount}
           </p>
         </div>
@@ -114,13 +114,13 @@ export function AssessmentResultsList({
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         {/* Search */}
         <div className="relative flex-1 sm:max-w-xs">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-400" />
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <input
             type="text"
             placeholder="Search candidates..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full rounded-lg border border-stone-200 bg-white py-2.5 pl-10 pr-4 text-sm text-stone-900 placeholder-stone-400 transition-colors focus:border-orange-300 focus:outline-none focus:ring-2 focus:ring-orange-500/20 dark:border-stone-700 dark:bg-stone-800 dark:text-stone-100 dark:placeholder-stone-500"
+            className="w-full rounded-lg border border-border bg-card py-2.5 pl-10 pr-4 text-sm text-foreground placeholder-muted-foreground transition-colors focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
           />
         </div>
 
@@ -131,7 +131,7 @@ export function AssessmentResultsList({
             <select
               value={selectedJob}
               onChange={(e) => handleJobFilter(e.target.value)}
-              className="appearance-none rounded-lg border border-stone-200 bg-white py-2.5 pl-4 pr-10 text-sm text-stone-700 transition-colors focus:border-orange-300 focus:outline-none focus:ring-2 focus:ring-orange-500/20 dark:border-stone-700 dark:bg-stone-800 dark:text-stone-300"
+              className="appearance-none rounded-lg border border-border bg-card py-2.5 pl-4 pr-10 text-sm text-foreground transition-colors focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
             >
               <option value="all">All Jobs</option>
               {jobs.map((job) => (
@@ -140,18 +140,18 @@ export function AssessmentResultsList({
                 </option>
               ))}
             </select>
-            <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-400" />
+            <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           </div>
 
           {/* Sort Buttons */}
-          <div className="hidden items-center gap-1 rounded-lg border border-stone-200 bg-white p-1 dark:border-stone-700 dark:bg-stone-800 sm:flex">
+          <div className="hidden items-center gap-1 rounded-lg border border-border bg-card p-1 sm:flex">
             <button
               type="button"
               onClick={() => handleSort('score')}
               className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
                 sortField === 'score'
-                  ? 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400'
-                  : 'text-stone-600 hover:bg-stone-100 dark:text-stone-400 dark:hover:bg-stone-700'
+                  ? 'bg-primary/10 text-primary'
+                  : 'text-muted-foreground hover:bg-secondary hover:text-foreground'
               }`}
             >
               Score
@@ -164,8 +164,8 @@ export function AssessmentResultsList({
               onClick={() => handleSort('date')}
               className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
                 sortField === 'date'
-                  ? 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400'
-                  : 'text-stone-600 hover:bg-stone-100 dark:text-stone-400 dark:hover:bg-stone-700'
+                  ? 'bg-primary/10 text-primary'
+                  : 'text-muted-foreground hover:bg-secondary hover:text-foreground'
               }`}
             >
               Date
@@ -178,8 +178,8 @@ export function AssessmentResultsList({
               onClick={() => handleSort('name')}
               className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
                 sortField === 'name'
-                  ? 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400'
-                  : 'text-stone-600 hover:bg-stone-100 dark:text-stone-400 dark:hover:bg-stone-700'
+                  ? 'bg-primary/10 text-primary'
+                  : 'text-muted-foreground hover:bg-secondary hover:text-foreground'
               }`}
             >
               Name
@@ -203,8 +203,8 @@ export function AssessmentResultsList({
           ))}
         </div>
       ) : (
-        <div className="rounded-xl border border-dashed border-stone-300 bg-stone-50 py-12 text-center dark:border-stone-700 dark:bg-stone-900">
-          <p className="text-stone-500 dark:text-stone-400">
+        <div className="rounded-lg border border-dashed border-border bg-secondary py-12 text-center">
+          <p className="text-muted-foreground">
             {searchQuery || selectedJob !== 'all'
               ? 'No results match your filters'
               : 'No assessment results yet'}

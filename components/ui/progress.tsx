@@ -14,10 +14,11 @@ const progressVariants = cva(
     variants: {
       variant: {
         default: "bg-primary",
-        secondary: "bg-secondary",
+        secondary: "bg-secondary-foreground",
         destructive: "bg-destructive",
-        success: "bg-green-500 dark:bg-green-400",
-        warning: "bg-yellow-500 dark:bg-yellow-400",
+        success: "bg-success",
+        warning: "bg-warning",
+        accent: "bg-accent",
       },
     },
     defaultVariants: {
@@ -35,7 +36,7 @@ function Progress({ className, value, variant, ...props }: ProgressProps) {
     <ProgressPrimitive.Root
       data-slot="progress"
       className={cn(
-        "bg-primary/20 relative h-2 w-full overflow-hidden rounded-full",
+        "bg-secondary relative h-2 w-full overflow-hidden rounded-full",
         className
       )}
       {...props}

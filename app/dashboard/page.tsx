@@ -87,24 +87,24 @@ export default function DashboardPage() {
       value: stats?.candidateCount ?? 0,
       subtitle: "Total invitations sent",
       icon: Users,
-      color: "text-secondary",
-      bgColor: "bg-secondary/10",
+      color: "text-accent",
+      bgColor: "bg-accent/10",
     },
     {
       title: "Completed",
       value: stats?.completedCount ?? 0,
       subtitle: "Assessments finished",
       icon: CheckCircle2,
-      color: "text-emerald-600 dark:text-emerald-400",
-      bgColor: "bg-emerald-500/10",
+      color: "text-success",
+      bgColor: "bg-success/10",
     },
     {
       title: "Average Score",
       value: stats?.averageScore != null ? `${stats.averageScore}%` : "N/A",
       subtitle: "Across all results",
       icon: TrendingUp,
-      color: "text-amber-600 dark:text-amber-400",
-      bgColor: "bg-amber-500/10",
+      color: "text-warning",
+      bgColor: "bg-warning/10",
     },
   ];
 
@@ -126,11 +126,11 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* Welcome section */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">
+          <h1 className="font-display text-2xl font-bold tracking-tight">
             Welcome back, {userName}
           </h1>
           <p className="text-muted-foreground">
@@ -157,7 +157,7 @@ export default function DashboardPage() {
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {statCards.map((stat) => (
           <Card key={stat.title}>
-            <CardContent className="pt-6">
+            <CardContent className="pt-4">
               <div className="flex items-center gap-4">
                 <div className={`p-3 rounded-lg ${stat.bgColor}`}>
                   <stat.icon className={`h-5 w-5 ${stat.color}`} />
@@ -176,7 +176,7 @@ export default function DashboardPage() {
       </div>
 
       {/* Recent activity and quick actions */}
-      <div className="grid gap-6 lg:grid-cols-3">
+      <div className="grid gap-4 lg:grid-cols-3">
         {/* Recent results */}
         <Card className="lg:col-span-2">
           <CardHeader className="flex flex-row items-center justify-between">
@@ -195,15 +195,15 @@ export default function DashboardPage() {
           </CardHeader>
           <CardContent>
             {stats?.recentResults && stats.recentResults.length > 0 ? (
-              <div className="space-y-4">
+              <div className="space-y-3">
                 {stats.recentResults.map((result) => (
                   <div
                     key={result.id}
-                    className="flex items-center justify-between p-3 rounded-lg border bg-card hover:bg-accent/50 transition-colors"
+                    className="flex items-center justify-between p-3 rounded-lg border bg-card hover:bg-secondary/50 transition-colors"
                   >
                     <div className="flex items-center gap-3">
                       <Avatar className="h-10 w-10">
-                        <AvatarFallback className="bg-primary/10 text-primary text-sm">
+                        <AvatarFallback className="bg-primary text-primary-foreground text-sm">
                           {result.candidateName
                             .split(" ")
                             .map((n) => n[0])
@@ -222,11 +222,11 @@ export default function DashboardPage() {
                     <div className="flex items-center gap-3">
                       <Badge
                         variant={
-                          result.overallScore >= 70
-                            ? "default"
-                            : result.overallScore >= 50
-                              ? "secondary"
-                              : "outline"
+                          result.overallScore >= 85
+                            ? "success"
+                            : result.overallScore >= 70
+                              ? "default"
+                              : "secondary"
                         }
                       >
                         {result.overallScore}%
@@ -241,7 +241,7 @@ export default function DashboardPage() {
               </div>
             ) : (
               <div className="flex flex-col items-center justify-center py-8 text-center">
-                <div className="p-3 rounded-full bg-muted mb-3">
+                <div className="p-3 rounded-full bg-secondary mb-3">
                   <CheckCircle2 className="h-6 w-6 text-muted-foreground" />
                 </div>
                 <p className="text-muted-foreground">
@@ -289,8 +289,8 @@ export default function DashboardPage() {
               asChild
             >
               <Link href="/dashboard/templates/new">
-                <div className="p-2 rounded-md bg-secondary/10 mr-3">
-                  <Plus className="h-4 w-4 text-secondary" />
+                <div className="p-2 rounded-md bg-accent/10 mr-3">
+                  <Plus className="h-4 w-4 text-accent" />
                 </div>
                 <div className="text-left">
                   <p className="font-medium">Create Template</p>
@@ -307,8 +307,8 @@ export default function DashboardPage() {
               asChild
             >
               <Link href="/dashboard/results">
-                <div className="p-2 rounded-md bg-emerald-500/10 mr-3">
-                  <TrendingUp className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+                <div className="p-2 rounded-md bg-success/10 mr-3">
+                  <TrendingUp className="h-4 w-4 text-success" />
                 </div>
                 <div className="text-left">
                   <p className="font-medium">View Analytics</p>

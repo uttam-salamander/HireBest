@@ -34,8 +34,8 @@ export function MainNav({ items, onNavigate }: MainNavProps) {
               onClick={(e) => handleClick(e, item.href)}
               className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
                 item.isActive
-                  ? 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400'
-                  : 'text-stone-600 hover:bg-stone-100 hover:text-stone-900 dark:text-stone-400 dark:hover:bg-stone-800 dark:hover:text-stone-100'
+                  ? 'bg-primary/10 text-primary'
+                  : 'text-muted-foreground hover:bg-secondary hover:text-foreground'
               }`}
             >
               {item.label}
@@ -48,7 +48,7 @@ export function MainNav({ items, onNavigate }: MainNavProps) {
       <button
         type="button"
         onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-        className="flex items-center justify-center rounded-lg p-2 text-stone-600 hover:bg-stone-100 dark:text-stone-400 dark:hover:bg-stone-800 md:hidden"
+        className="flex items-center justify-center rounded-lg p-2 text-muted-foreground hover:bg-secondary md:hidden"
         aria-label="Toggle menu"
       >
         {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
@@ -56,7 +56,7 @@ export function MainNav({ items, onNavigate }: MainNavProps) {
 
       {/* Mobile Navigation */}
       {mobileMenuOpen && (
-        <div className="absolute left-1/2 top-full z-50 mt-2 w-48 -translate-x-1/2 rounded-lg border border-stone-200 bg-white p-2 shadow-lg dark:border-stone-700 dark:bg-stone-800 md:hidden">
+        <div className="absolute left-1/2 top-full z-50 mt-2 w-48 -translate-x-1/2 rounded-lg border border-border bg-card p-2 shadow-lg md:hidden">
           <ul className="space-y-1">
             {items.map((item) => (
               <li key={item.href}>
@@ -65,8 +65,8 @@ export function MainNav({ items, onNavigate }: MainNavProps) {
                   onClick={(e) => handleClick(e, item.href)}
                   className={`block rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
                     item.isActive
-                      ? 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400'
-                      : 'text-stone-600 hover:bg-stone-100 hover:text-stone-900 dark:text-stone-400 dark:hover:bg-stone-700 dark:hover:text-stone-100'
+                      ? 'bg-primary/10 text-primary'
+                      : 'text-muted-foreground hover:bg-secondary hover:text-foreground'
                   }`}
                 >
                   {item.label}
@@ -77,7 +77,7 @@ export function MainNav({ items, onNavigate }: MainNavProps) {
               <a
                 href="/settings"
                 onClick={(e) => handleClick(e, '/settings')}
-                className="block rounded-lg px-4 py-2 text-sm font-medium text-stone-600 hover:bg-stone-100 hover:text-stone-900 dark:text-stone-400 dark:hover:bg-stone-700 dark:hover:text-stone-100"
+                className="block rounded-lg px-4 py-2 text-sm font-medium text-muted-foreground hover:bg-secondary hover:text-foreground"
               >
                 Settings
               </a>

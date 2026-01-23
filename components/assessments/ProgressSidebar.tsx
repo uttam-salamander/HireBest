@@ -29,17 +29,17 @@ export function ProgressSidebar({
   }
 
   return (
-    <aside className="h-full w-80 flex-shrink-0 border-r border-stone-200 bg-white dark:border-stone-800 dark:bg-stone-900">
+    <aside className="h-full w-80 flex-shrink-0 border-r border-border bg-card">
       <div className="flex h-full flex-col">
         {/* Mobile Close Button */}
-        <div className="flex items-center justify-between border-b border-stone-100 p-4 dark:border-stone-800 lg:hidden">
-          <span className="font-heading text-sm font-semibold text-stone-900 dark:text-stone-100">
+        <div className="flex items-center justify-between border-b border-border p-4 lg:hidden">
+          <span className="font-display text-sm font-semibold text-foreground">
             Assessment Progress
           </span>
           <button
             type="button"
             onClick={onClose}
-            className="flex h-8 w-8 items-center justify-center rounded-lg text-stone-500 hover:bg-stone-100 dark:text-stone-400 dark:hover:bg-stone-700"
+            className="flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground hover:bg-secondary"
             aria-label="Close sidebar"
           >
             <X className="h-5 w-5" />
@@ -47,24 +47,24 @@ export function ProgressSidebar({
         </div>
 
         {/* Candidate Info */}
-        <div className="border-b border-stone-100 p-6 dark:border-stone-800">
+        <div className="border-b border-border p-5">
           <div className="flex items-center gap-4">
             {candidate.avatarUrl ? (
               <img
                 src={candidate.avatarUrl}
                 alt={candidate.name}
-                className="h-14 w-14 rounded-full object-cover ring-2 ring-stone-100 dark:ring-stone-700"
+                className="h-14 w-14 rounded-full object-cover ring-2 ring-border"
               />
             ) : (
-              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-orange-400 to-orange-600 text-lg font-semibold text-white shadow-lg shadow-orange-500/20">
+              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-primary text-lg font-semibold text-primary-foreground">
                 {getInitials(candidate.name)}
               </div>
             )}
             <div>
-              <h2 className="font-heading text-lg font-semibold text-stone-900 dark:text-stone-100">
+              <h2 className="font-display text-lg font-semibold text-foreground">
                 {candidate.name}
               </h2>
-              <p className="text-sm text-stone-500 dark:text-stone-400">
+              <p className="text-sm text-muted-foreground">
                 {candidate.email}
               </p>
             </div>
@@ -72,19 +72,19 @@ export function ProgressSidebar({
         </div>
 
         {/* Job Info */}
-        <div className="border-b border-stone-100 p-6 dark:border-stone-800">
+        <div className="border-b border-border p-5">
           <div className="flex items-start gap-3">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-teal-50 dark:bg-teal-900/30">
-              <Briefcase className="h-5 w-5 text-teal-600 dark:text-teal-400" />
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-success/10">
+              <Briefcase className="h-5 w-5 text-success" />
             </div>
             <div>
-              <p className="text-xs font-medium uppercase tracking-wider text-stone-400 dark:text-stone-500">
+              <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
                 Applying for
               </p>
-              <p className="mt-0.5 font-medium text-stone-900 dark:text-stone-100">
+              <p className="mt-0.5 font-medium text-foreground">
                 {job.title}
               </p>
-              <p className="text-sm text-stone-500 dark:text-stone-400">
+              <p className="text-sm text-muted-foreground">
                 {job.company}
               </p>
             </div>
@@ -92,20 +92,20 @@ export function ProgressSidebar({
         </div>
 
         {/* Progress Section */}
-        <div className="flex-1 p-6">
+        <div className="flex-1 p-5">
           <div className="mb-4 flex items-center justify-between">
-            <h3 className="text-sm font-semibold text-stone-900 dark:text-stone-100">
+            <h3 className="text-sm font-semibold text-foreground">
               Assessment Progress
             </h3>
-            <span className="text-sm font-medium text-orange-600 dark:text-orange-400">
+            <span className="text-sm font-medium text-primary">
               {Math.round(progressPercentage)}%
             </span>
           </div>
 
           {/* Progress Bar */}
-          <div className="mb-6 h-2 overflow-hidden rounded-full bg-stone-100 dark:bg-stone-800">
+          <div className="mb-6 h-2 overflow-hidden rounded-full bg-secondary">
             <div
-              className="h-full rounded-full bg-gradient-to-r from-orange-400 to-orange-600 transition-all duration-500 ease-out"
+              className="h-full rounded-full bg-primary transition-all duration-500 ease-out"
               style={{ width: `${progressPercentage}%` }}
             />
           </div>
@@ -123,29 +123,29 @@ export function ProgressSidebar({
                   key={i}
                   className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-colors ${
                     isCurrent
-                      ? 'bg-orange-50 dark:bg-orange-900/20'
+                      ? 'bg-primary/10'
                       : isCompleted
-                        ? 'bg-teal-50/50 dark:bg-teal-900/10'
+                        ? 'bg-success/5'
                         : ''
                   }`}
                 >
                   {isCompleted ? (
-                    <CheckCircle2 className="h-5 w-5 text-teal-500" />
+                    <CheckCircle2 className="h-5 w-5 text-success" />
                   ) : isCurrent ? (
                     <div className="relative flex h-5 w-5 items-center justify-center">
-                      <span className="absolute h-5 w-5 animate-ping rounded-full bg-orange-400/50" />
-                      <span className="relative h-3 w-3 rounded-full bg-orange-500" />
+                      <span className="absolute h-5 w-5 animate-ping rounded-full bg-primary/50" />
+                      <span className="relative h-3 w-3 rounded-full bg-primary" />
                     </div>
                   ) : (
-                    <Circle className="h-5 w-5 text-stone-300 dark:text-stone-600" />
+                    <Circle className="h-5 w-5 text-border" />
                   )}
                   <span
                     className={`text-sm ${
                       isCurrent
-                        ? 'font-medium text-orange-700 dark:text-orange-400'
+                        ? 'font-medium text-primary'
                         : isCompleted
-                          ? 'text-teal-700 dark:text-teal-400'
-                          : 'text-stone-400 dark:text-stone-500'
+                          ? 'text-success'
+                          : 'text-muted-foreground'
                     }`}
                   >
                     Question {questionNumber}
@@ -157,14 +157,14 @@ export function ProgressSidebar({
         </div>
 
         {/* Footer */}
-        <div className="border-t border-stone-100 p-6 dark:border-stone-800">
-          <div className="flex items-center gap-3 rounded-lg bg-stone-50 p-4 dark:bg-stone-800/50">
-            <User className="h-5 w-5 text-stone-400" />
+        <div className="border-t border-border p-5">
+          <div className="flex items-center gap-3 rounded-lg bg-secondary p-4">
+            <User className="h-5 w-5 text-muted-foreground" />
             <div className="text-sm">
-              <p className="font-medium text-stone-700 dark:text-stone-300">
+              <p className="font-medium text-foreground">
                 Need help?
               </p>
-              <p className="text-stone-500 dark:text-stone-400">
+              <p className="text-muted-foreground">
                 Contact support@hirebest.com
               </p>
             </div>

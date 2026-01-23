@@ -570,14 +570,14 @@ export default function JobDetailPage({
             <CardContent>
               {inviteSuccess ? (
                 <div className="space-y-4">
-                  <div className="p-4 rounded-md bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800">
-                    <p className="text-sm text-green-800 dark:text-green-200 font-medium mb-2">
+                  <div className="p-4 rounded-md bg-success/10 border border-success/30">
+                    <p className="text-sm text-success font-medium mb-2">
                       Invitation sent successfully!
                     </p>
-                    <p className="text-sm text-green-700 dark:text-green-300 mb-2">
+                    <p className="text-sm text-success/80 mb-2">
                       Assessment URL:
                     </p>
-                    <code className="text-xs bg-green-100 dark:bg-green-900/40 px-2 py-1 rounded break-all">
+                    <code className="text-xs bg-success/20 px-2 py-1 rounded break-all text-foreground">
                       {inviteSuccess}
                     </code>
                   </div>

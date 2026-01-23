@@ -28,8 +28,8 @@ export function AppShell({
   onLogout,
 }: AppShellProps) {
   return (
-    <div className="min-h-screen bg-stone-50 dark:bg-stone-950">
-      <header className="sticky top-0 z-50 border-b border-stone-200 bg-white dark:border-stone-800 dark:bg-stone-900">
+    <div className="min-h-screen bg-background">
+      <header className="sticky top-0 z-50 border-b border-border bg-card">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
           <div className="flex items-center gap-8">
             <a
@@ -40,10 +40,10 @@ export function AppShell({
               }}
               className="flex items-center gap-2"
             >
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-orange-500">
-                <span className="text-sm font-bold text-white">H</span>
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
+                <span className="font-display text-sm font-bold text-primary-foreground">H</span>
               </div>
-              <span className="font-heading text-xl font-bold text-stone-900 dark:text-stone-100">
+              <span className="font-display text-xl font-bold text-foreground">
                 HireBest
               </span>
             </a>
@@ -58,7 +58,7 @@ export function AppShell({
                 e.preventDefault()
                 onNavigate?.('/settings')
               }}
-              className="hidden text-sm font-medium text-stone-600 transition-colors hover:text-orange-600 dark:text-stone-400 dark:hover:text-orange-400 sm:block"
+              className="hidden text-sm font-medium text-muted-foreground transition-colors hover:text-primary sm:block"
             >
               Settings
             </a>

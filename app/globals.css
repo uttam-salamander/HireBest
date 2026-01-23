@@ -2,32 +2,128 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Design Tokens for HireBest */
+/* Editorial Design Tokens for HireBest */
 :root {
-  /* Colors - Using Tailwind color names */
-  --color-primary: orange;
-  --color-secondary: teal;
-  --color-neutral: stone;
-
   /* Typography */
-  --font-heading: 'Quicksand', sans-serif;
-  --font-body: 'Quicksand', sans-serif;
+  --font-display: 'Playfair Display', Georgia, serif;
+  --font-body: 'Source Serif 4', Georgia, serif;
   --font-mono: 'IBM Plex Mono', monospace;
 
-  /* Light mode backgrounds */
-  --background: #fafaf9; /* stone-50 */
-  --foreground: #1c1917; /* stone-900 */
+  /* Editorial Color Palette - Light Mode Only */
+  --background: #FFFDF8;        /* Warm cream */
+  --foreground: #2C2420;        /* Warm dark brown */
+  --card: #FFFFFF;              /* Pure white cards */
+  --card-foreground: #2C2420;
+
+  --primary: #8B4513;           /* Saddle brown */
+  --primary-foreground: #FFFDF8;
+
+  --secondary: #F5F0E8;         /* Light warm gray */
+  --secondary-foreground: #2C2420;
+
+  --accent: #722F37;            /* Wine/burgundy */
+  --accent-foreground: #FFFDF8;
+
+  --muted: #F5F0E8;
+  --muted-foreground: #6B5D52;  /* Muted brown */
+
+  --destructive: #9B2C2C;       /* Deep red */
+  --destructive-foreground: #FFFDF8;
+
+  --success: #3D6B59;           /* Forest green */
+  --success-foreground: #FFFDF8;
+
+  --warning: #A67C3D;           /* Amber/ochre */
+  --warning-foreground: #FFFDF8;
+
+  --border: #E8E2DA;            /* Warm gray border */
+  --input: #E8E2DA;
+  --ring: #8B4513;
+
+  --radius: 0.375rem;           /* Slightly smaller, more refined */
+
+  /* Sidebar-specific tokens */
+  --sidebar: #FFFFFF;
+  --sidebar-foreground: #2C2420;
+  --sidebar-border: #E8E2DA;
+  --sidebar-accent: #F5F0E8;
+  --sidebar-accent-foreground: #2C2420;
+  --sidebar-primary: #8B4513;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #1c1917; /* stone-900 */
-    --foreground: #fafaf9; /* stone-50 */
-  }
-}
-
+/* Base Styles */
 body {
   color: var(--foreground);
   background: var(--background);
   font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Headings use display font */
+h1, h2, h3, h4, h5, h6,
+.font-display {
+  font-family: var(--font-display);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+/* Selection colors */
+::selection {
+  background-color: rgba(139, 69, 19, 0.2);
+  color: var(--foreground);
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--secondary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--muted-foreground);
+}
+
+/* Tailwind layers */
+@layer base {
+  * {
+    border-color: var(--border);
+  }
+}
+
+@layer utilities {
+  .font-display {
+    font-family: var(--font-display);
+  }
+
+  .font-serif {
+    font-family: var(--font-body);
+  }
+
+  .text-success {
+    color: var(--success);
+  }
+
+  .text-warning {
+    color: var(--warning);
+  }
+
+  .bg-success {
+    background-color: var(--success);
+  }
+
+  .bg-warning {
+    background-color: var(--warning);
+  }
 }

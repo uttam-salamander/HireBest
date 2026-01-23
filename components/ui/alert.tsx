@@ -8,13 +8,13 @@ const alertVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-background text-foreground",
+        default: "bg-card text-foreground",
         destructive:
-          "border-destructive/50 text-destructive dark:border-destructive [&>svg]:text-destructive",
+          "border-destructive/50 text-destructive bg-destructive/5 [&>svg]:text-destructive",
         success:
-          "border-green-500/50 text-green-700 dark:text-green-400 dark:border-green-500 [&>svg]:text-green-600 dark:[&>svg]:text-green-400",
+          "border-success/50 text-success bg-success/5 [&>svg]:text-success",
         warning:
-          "border-yellow-500/50 text-yellow-700 dark:text-yellow-400 dark:border-yellow-500 [&>svg]:text-yellow-600 dark:[&>svg]:text-yellow-400",
+          "border-warning/50 text-warning bg-warning/5 [&>svg]:text-warning",
       },
     },
     defaultVariants: {
@@ -42,7 +42,7 @@ function AlertTitle({ className, ...props }: React.ComponentProps<"h5">) {
   return (
     <h5
       data-slot="alert-title"
-      className={cn("mb-1 font-medium leading-none tracking-tight", className)}
+      className={cn("mb-1 font-medium font-display leading-none tracking-tight", className)}
       {...props}
     />
   )
