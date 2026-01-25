@@ -39,30 +39,26 @@ export default function SignupPage() {
     }
 
     if (authData.user) {
-      // Create profile in appropriate table
-      if (userType === 'candidate') {
-        const { error: profileError } = await supabase.from('candidates').insert({
-          id: authData.user.id,
-          name,
-          email,
-        })
+      // Create profile via API (uses service role to bypass RLS)
+      const profileResponse = await fetch('/api/auth/profile', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userType, name, email }),
+      })
 
-        if (profileError) {
-          console.error('Error creating candidate profile:', profileError)
-        }
-      } else {
-        const { error: profileError } = await supabase.from('recruiters').insert({
-          id: authData.user.id,
-          name,
-          email,
-        })
-
-        if (profileError) {
-          console.error('Error creating recruiter profile:', profileError)
-        }
+      if (!profileResponse.ok) {
+        const data = await profileResponse.json()
+        setError(data.error || 'Failed to create profile')
+        setLoading(false)
+        return
       }
 
-      router.push('/assessments')
+      // Redirect based on user type
+      if (userType === 'candidate') {
+        router.push('/candidate/dashboard')
+      } else {
+        router.push('/dashboard')
+      }
       router.refresh()
     }
 

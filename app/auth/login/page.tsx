@@ -26,8 +26,26 @@ export default function LoginPage() {
     if (error) {
       setError(error.message)
       setLoading(false)
-    } else {
-      router.push('/assessments')
+      return
+    }
+
+    // Get user type and redirect appropriately
+    try {
+      const meResponse = await fetch('/api/auth/me')
+      const profile = await meResponse.json()
+
+      if (profile.userType === 'candidate') {
+        router.push('/candidate/dashboard')
+      } else if (profile.userType === 'recruiter') {
+        router.push('/dashboard')
+      } else {
+        // No profile found - redirect to signup to complete registration
+        router.push('/auth/signup')
+      }
+      router.refresh()
+    } catch {
+      // Fallback to dashboard if API fails
+      router.push('/dashboard')
       router.refresh()
     }
   }
